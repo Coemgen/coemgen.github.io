@@ -51,210 +51,211 @@
 
 /******************************************************************************/
 
-/**
- * @namespace MonthlyRun
- */
-const MonthlyRun = (function (DriveApp, PropertiesService, SpreadsheetApp) {
-  "use strict";
-
+const MonthlyRun = (
   /**
-   * Returns a reference to the folder object, for the current year, and its
-   * yearly stats spreadsheet.  If the folder does not already exist, a new one
-   * will be created and populated with a yearly stats spreadsheet.
-   * @function getYearFolder
-   * @memberof MonthlyRun
-   * @private
-   * @param {string} yearStr
-   * @returns {object[]} - [yearfolder, yearlyStatsFile] object references
+   * @namespace MonthlyRun
    */
-  function getYearFolder(yearStr) {
-    const yearlyStatsTemplate = SpreadsheetApp.openById(
-      PropertiesService.getScriptProperties()
-      .getProperty("yearlyStatsTemplateId")
-    );
-    // find root folder
-    const dataFolder = DriveApp.getFolderById(
-      PropertiesService.getScriptProperties().getProperty("dataFolderId")
-    );
-    const folderIterator = dataFolder.getFoldersByName(yearStr);
-    const yearFolder = (
-      (folderIterator.hasNext() === true)
-      ? folderIterator.next()
-      : dataFolder.createFolder(yearStr));
-    const fileIterator = yearFolder.getFilesByName(yearStr + "-stats");
-    const yearlyStatsFile = (
-      (fileIterator.hasNext() === true)
-      ? fileIterator.next()
-      : DriveApp.getFileById(yearlyStatsTemplate.getId())
-      .makeCopy((yearStr + "-stats"), yearFolder));
+  function (DriveApp, PropertiesService, SpreadsheetApp) {
+    "use strict";
 
-    return [yearFolder, yearlyStatsFile];
-  }
-
-  /**
-   * Returns a the file ID for the monthly data file object, for the current
-   * month.  If the file does not already exist, a new one will be created.
-   * @function getCodeMoveFolder
-   * @memberof MonthlyRun
-   * @private
-   * @param {Object} yearFolder - the data folder
-   * @param {string} yearMonthStr - used for naming the spreadsheet and sheets
-   * @returns {string} monthly data spreadsheet file ID
-   */
-  function getCodeMoveFileId(yearFolder, yearMonthStr) {
-    // get code move template
-    const codeMoveTemplate = DriveApp.getFileById(
-      PropertiesService.getScriptProperties()
-      .getProperty("codeMoveTemplateId")
-    );
-    // get or create YYYY-MM spreadsheet
-    const codeMoveSheetName = yearMonthStr;
-    const fileIterator = yearFolder.getFilesByName(codeMoveSheetName);
-    const yearMonthFileFound = fileIterator.hasNext();
-    const codeMoveFile = (
-      (yearMonthFileFound)
-      ? fileIterator.next()
-      : codeMoveTemplate.makeCopy(codeMoveSheetName, yearFolder));
-    var spreadsheet = {};
-
-    // edit new month spreadsheets
-    if (yearMonthFileFound === false) {
-      spreadsheet = SpreadsheetApp.openById(
-        codeMoveFile.getId()
+    /**
+     * Returns a reference to the folder object, for the current year, and its
+     * yearly stats spreadsheet.  If the folder does not already exist, a new one
+     * will be created and populated with a yearly stats spreadsheet.
+     * @function getYearFolder
+     * @memberof MonthlyRun
+     * @private
+     * @param {string} yearStr
+     * @returns {object[]} - [yearfolder, yearlyStatsFile] object references
+     */
+    function getYearFolder(yearStr) {
+      const yearlyStatsTemplate = SpreadsheetApp.openById(
+        PropertiesService.getScriptProperties()
+        .getProperty("yearlyStatsTemplateId")
       );
-      spreadsheet.getSheetByName("Totals")
-        .getRange("A1:A3")
-        .setValue(yearMonthStr);
+      // find root folder
+      const dataFolder = DriveApp.getFolderById(
+        PropertiesService.getScriptProperties().getProperty("dataFolderId")
+      );
+      const folderIterator = dataFolder.getFoldersByName(yearStr);
+      const yearFolder = (
+        (folderIterator.hasNext() === true)
+        ? folderIterator.next()
+        : dataFolder.createFolder(yearStr));
+      const fileIterator = yearFolder.getFilesByName(yearStr + "-stats");
+      const yearlyStatsFile = (
+        (fileIterator.hasNext() === true)
+        ? fileIterator.next()
+        : DriveApp.getFileById(yearlyStatsTemplate.getId())
+        .makeCopy((yearStr + "-stats"), yearFolder));
 
-      // for each staff member update link to and from Totals sheet
-      spreadsheet.getSheetByName("Totals").getRange("A4:A23")
-        .getValues().map((nameArr) => nameArr[0])
-        .filter((name) => name).forEach(
-          function (name, index) {
-            // eslint-disable-next-line no-undef
-            const row = FIRST_STAFF_ROW + index; /* jshint ignore:line */
-            spreadsheet.getSheetByName("Totals").getRange("A" + row).setValue(
-              "=HYPERLINK(\""
-              + "https://docs.google.com/spreadsheets/d/"
-              + spreadsheet.getId()
-              + "/edit#gid="
-              + spreadsheet.getSheetByName(name).getSheetId()
-              + "\", \""
-              + name
-              + "\")"
-            );
-            spreadsheet.getSheetByName(name).getRange("A1").setValue(
-              "=HYPERLINK(\""
-              + "https://docs.google.com/spreadsheets/d/"
-              + spreadsheet.getId()
-              + "/edit#gid="
-              + spreadsheet.getSheetByName("Totals").getSheetId()
-              + "\", \""
-              + "Totals"
-              + "\")"
-            );
+      return [yearFolder, yearlyStatsFile];
+    }
 
-            return undefined;
-          }
+    /**
+     * Returns a the file ID for the monthly data file object, for the current
+     * month.  If the file does not already exist, a new one will be created.
+     * @function getCodeMoveFolder
+     * @memberof MonthlyRun
+     * @private
+     * @param {Object} yearFolder - the data folder
+     * @param {string} yearMonthStr - used for naming the spreadsheet and sheets
+     * @returns {string} monthly data spreadsheet file ID
+     */
+    function getCodeMoveFileId(yearFolder, yearMonthStr) {
+      // get code move template
+      const codeMoveTemplate = DriveApp.getFileById(
+        PropertiesService.getScriptProperties()
+        .getProperty("codeMoveTemplateId")
+      );
+      // get or create YYYY-MM spreadsheet
+      const codeMoveSheetName = yearMonthStr;
+      const fileIterator = yearFolder.getFilesByName(codeMoveSheetName);
+      const yearMonthFileFound = fileIterator.hasNext();
+      const codeMoveFile = (
+        (yearMonthFileFound)
+        ? fileIterator.next()
+        : codeMoveTemplate.makeCopy(codeMoveSheetName, yearFolder));
+      var spreadsheet = {};
+
+      // edit new month spreadsheets
+      if (yearMonthFileFound === false) {
+        spreadsheet = SpreadsheetApp.openById(
+          codeMoveFile.getId()
         );
-    } // end if statement
+        spreadsheet.getSheetByName("Totals")
+          .getRange("A1:A3")
+          .setValue(yearMonthStr);
 
-    return codeMoveFile.getId();
-  }
+        // for each staff member update link to and from Totals sheet
+        spreadsheet.getSheetByName("Totals").getRange("A4:A23")
+          .getValues().map((nameArr) => nameArr[0])
+          .filter((name) => name).forEach(
+            function (name, index) {
+              // eslint-disable-next-line no-undef
+              const row = FIRST_STAFF_ROW + index; /* jshint ignore:line */
+              spreadsheet.getSheetByName("Totals").getRange("A" + row).setValue(
+                "=HYPERLINK(\""
+                + "https://docs.google.com/spreadsheets/d/"
+                + spreadsheet.getId()
+                + "/edit#gid="
+                + spreadsheet.getSheetByName(name).getSheetId()
+                + "\", \""
+                + name
+                + "\")"
+              );
+              spreadsheet.getSheetByName(name).getRange("A1").setValue(
+                "=HYPERLINK(\""
+                + "https://docs.google.com/spreadsheets/d/"
+                + spreadsheet.getId()
+                + "/edit#gid="
+                + spreadsheet.getSheetByName("Totals").getSheetId()
+                + "\", \""
+                + "Totals"
+                + "\")"
+              );
 
-  /**
-   * Populate yearly stats Spreadsheet's Weekend Days sheet with references to
-   * cells in the year's monthly data sheets.
-   * @function updateYearlyStatsFile
-   * @memberof MonthlyRun
-   * @private
-   * @param {Object} yearlyStatsFile
-   * @param {string} codeMoveFileId
-   * @param {number} month - 0 to 11
-   * @param {string} yearMonthStr - YYYY-MM format
-   * @returns {undefined}
-   */
-  function updateYearlyStatsFile(
-    yearlyStatsFile, codeMoveFileId, month, yearMonthStr) {
-    const yearlyStatsSheet = SpreadsheetApp.openById(yearlyStatsFile.getId())
-      .getSheetByName("Imported Data");
-    const row = month + 1;
+              return undefined;
+            }
+          );
+      } // end if statement
 
-    yearlyStatsSheet.getRange("A" + row).setValue(yearMonthStr);
+      return codeMoveFile.getId();
+    }
 
-    yearlyStatsSheet.getRange("B" + row).setFormula("=IMPORTRANGE("
-      + "\"https://docs.google.com/spreadsheets/d/"
-      + codeMoveFileId
-      + "\",\"Totals!B24:AH24\")"
-    );
+    /**
+     * Populate yearly stats Spreadsheet's Weekend Days sheet with references to
+     * cells in the year's monthly data sheets.
+     * @function updateYearlyStatsFile
+     * @memberof MonthlyRun
+     * @private
+     * @param {Object} yearlyStatsFile
+     * @param {string} codeMoveFileId
+     * @param {number} month - 0 to 11
+     * @param {string} yearMonthStr - YYYY-MM format
+     * @returns {undefined}
+     */
+    function updateYearlyStatsFile(
+      yearlyStatsFile, codeMoveFileId, month, yearMonthStr) {
+      const yearlyStatsSheet = SpreadsheetApp.openById(yearlyStatsFile.getId())
+        .getSheetByName("Imported Data");
+      const row = month + 1;
 
-    yearlyStatsSheet.getRange("AI" + row).setFormula("=IMPORTRANGE("
-      + "\"https://docs.google.com/spreadsheets/d/"
-      + codeMoveFileId
-      + "\",\"Totals!H29\")"
-    );
+      yearlyStatsSheet.getRange("A" + row).setValue(yearMonthStr);
 
-    yearlyStatsSheet.getRange("AJ" + row).setFormula("=IMPORTRANGE("
-      + "\"https://docs.google.com/spreadsheets/d/"
-      + codeMoveFileId
-      + "\",\"Totals!H30\")"
-    );
+      yearlyStatsSheet.getRange("B" + row).setFormula("=IMPORTRANGE("
+        + "\"https://docs.google.com/spreadsheets/d/"
+        + codeMoveFileId
+        + "\",\"Totals!B24:AH24\")"
+      );
 
-    yearlyStatsSheet.getRange("AK" + row).setFormula("=IMPORTRANGE("
-      + "\"https://docs.google.com/spreadsheets/d/"
-      + codeMoveFileId
-      + "\",\"Totals!H31\")"
-    );
+      yearlyStatsSheet.getRange("AI" + row).setFormula("=IMPORTRANGE("
+        + "\"https://docs.google.com/spreadsheets/d/"
+        + codeMoveFileId
+        + "\",\"Totals!H29\")"
+      );
 
-    return undefined;
-  }
+      yearlyStatsSheet.getRange("AJ" + row).setFormula("=IMPORTRANGE("
+        + "\"https://docs.google.com/spreadsheets/d/"
+        + codeMoveFileId
+        + "\",\"Totals!H30\")"
+      );
 
-  /**
-   * Gets the current year's data folder.  If the folder does not exist then it
-   * will be created and populated with a yearly stats spreadsheet. A monthly
-   * totals data entry spreadsheet will be created for the current month and
-   * linked to the yearly stats spreadsheet.
-   * @function main
-   * @memberof MonthlyRun
-   * @public
-   * @param {number} [testYear=undefined] - YYYY format
-   * @param {number} [testMonth=undefined] - 0...11
-   * @returns {undefined}
-   */
-  // eslint-disable-next-line no-unused-vars
-  function main(testYear = undefined, testMonth = undefined) {
+      yearlyStatsSheet.getRange("AK" + row).setFormula("=IMPORTRANGE("
+        + "\"https://docs.google.com/spreadsheets/d/"
+        + codeMoveFileId
+        + "\",\"Totals!H31\")"
+      );
 
-    var yearFolder = {};
-    var codeMoveFileId = "";
-    var yearlyStatsFile = {};
+      return undefined;
+    }
 
-    const dateObj = (
-      ((testYear !== undefined) &amp;&amp; (testMonth !== undefined))
-      ? new Date(testYear, testMonth)
-      : new Date());
-    const yearStr = dateObj.getFullYear().toString();
-    const month = dateObj.getMonth();
-    const monthStr = String(month + 1).toString().padStart(2, "0");
-    const yearMonthStr = yearStr + "-" + monthStr;
+    /**
+     * Gets the current year's data folder.  If the folder does not exist then it
+     * will be created and populated with a yearly stats spreadsheet. A monthly
+     * totals data entry spreadsheet will be created for the current month and
+     * linked to the yearly stats spreadsheet.
+     * @function main
+     * @memberof! MonthlyRun
+     * @public
+     * @param {number} [testYear=undefined] - YYYY format
+     * @param {number} [testMonth=undefined] - 0...11
+     * @returns {undefined}
+     */
+    // eslint-disable-next-line no-unused-vars
+    function main(testYear = undefined, testMonth = undefined) {
 
-    /* jshint ignore:start */
-    // See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#Array_destructuring
-    /* jshint ignore:end */
-    [yearFolder, yearlyStatsFile] = getYearFolder(yearStr);
+      var yearFolder = {};
+      var codeMoveFileId = "";
+      var yearlyStatsFile = {};
 
-    codeMoveFileId = getCodeMoveFileId(yearFolder, yearMonthStr);
+      const dateObj = (
+        ((testYear !== undefined) &amp;&amp; (testMonth !== undefined))
+        ? new Date(testYear, testMonth)
+        : new Date());
+      const yearStr = dateObj.getFullYear().toString();
+      const month = dateObj.getMonth();
+      const monthStr = String(month + 1).toString().padStart(2, "0");
+      const yearMonthStr = yearStr + "-" + monthStr;
 
-    updateYearlyStatsFile(yearlyStatsFile, codeMoveFileId, month, yearMonthStr);
+      /* jshint ignore:start */
+      // See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#Array_destructuring
+      /* jshint ignore:end */
+      [yearFolder, yearlyStatsFile] = getYearFolder(yearStr);
 
-    return undefined;
-  }
+      codeMoveFileId = getCodeMoveFileId(yearFolder, yearMonthStr);
 
-  return Object.freeze({
-    "main": main,
-    "updateYearlyStatsFile": updateYearlyStatsFile
-  });
+      updateYearlyStatsFile(yearlyStatsFile, codeMoveFileId, month, yearMonthStr);
 
-}(DriveApp, PropertiesService, SpreadsheetApp));
+      return undefined;
+    }
+
+    return Object.freeze({
+      "main": main,
+      "updateYearlyStatsFile": updateYearlyStatsFile
+    });
+
+  }(DriveApp, PropertiesService, SpreadsheetApp));
 
 /******************************************************************************/
 </code></pre>
@@ -273,7 +274,7 @@ const MonthlyRun = (function (DriveApp, PropertiesService, SpreadsheetApp) {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Thu Apr 09 2020 12:58:35 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Thu Apr 09 2020 13:46:20 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

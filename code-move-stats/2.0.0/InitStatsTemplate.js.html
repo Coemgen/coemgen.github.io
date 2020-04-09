@@ -43,206 +43,207 @@
  * @author Kevin Griffin &lt;kevin.griffin@gmail.com>
  */
 
-/**
- * @namespace InitStatsTemplate
- */
-const InitStatsTemplate = (function (PropertiesService, SpreadsheetApp) {
-  "use strict";
-
+const InitStatsTemplate = (
   /**
-   * Sets up links from the Imported Data sheet to the Weekend Days sheet
-   * @function initCodeMoves
-   * @memberof InitStatsTemplate
-   * @private
-   * @param {Object} statsTemplate - The spreadsheet object
+   * @namespace InitStatsTemplate
    */
-  function initCodeMoves(statsTemplate) {
-    const sheet = statsTemplate.getSheetByName("Weekend Days");
-    Array.from({
-      length: 12
-    }).forEach(
-      function (ignore, index) {
-        const letter = String.fromCharCode(66 + index);
-        const column = 1 + index;
-        sheet.getRange(letter + "3:" + letter + "11").setValues(
-          [
-            ["=IF('Imported Data'!D" + column
-              + "&lt;1, 0, 'Imported Data'!D" + column + ")"
-            ],
-            ["=IF('Imported Data'!O" + column
-              + "&lt;1, 0, 'Imported Data'!O" + column + ")"
-            ],
-            ["=IF('Imported Data'!Z" + column
-              + "&lt;1, 0, 'Imported Data'!Z" + column + ")"
-            ],
+  function (PropertiesService, SpreadsheetApp) {
+    "use strict";
 
-            ["=IF('Imported Data'!G" + column
-              + "&lt;1, 0, 'Imported Data'!G" + column + ")"
-            ],
-            ["=IF('Imported Data'!R" + column
-              + "&lt;1, 0, 'Imported Data'!R" + column + ")"
-            ],
-            ["=IF('Imported Data'!AC" + column
-              + "&lt;1, 0, 'Imported Data'!AC" + column + ")"
-            ],
+    /**
+     * Sets up links from the Imported Data sheet to the Weekend Days sheet
+     * @function initCodeMoves
+     * @memberof InitStatsTemplate
+     * @private
+     * @param {Object} statsTemplate - The spreadsheet object
+     */
+    function initCodeMoves(statsTemplate) {
+      const sheet = statsTemplate.getSheetByName("Weekend Days");
+      Array.from({
+        length: 12
+      }).forEach(
+        function (ignore, index) {
+          const letter = String.fromCharCode(66 + index);
+          const column = 1 + index;
+          sheet.getRange(letter + "3:" + letter + "11").setValues(
+            [
+              ["=IF('Imported Data'!D" + column
+                + "&lt;1, 0, 'Imported Data'!D" + column + ")"
+              ],
+              ["=IF('Imported Data'!O" + column
+                + "&lt;1, 0, 'Imported Data'!O" + column + ")"
+              ],
+              ["=IF('Imported Data'!Z" + column
+                + "&lt;1, 0, 'Imported Data'!Z" + column + ")"
+              ],
 
-            ["=IF('Imported Data'!J" + column
-              + "&lt;1, 0, 'Imported Data'!J" + column + ")"
-            ],
-            ["=IF('Imported Data'!U" + column
-              + "&lt;1, 0, 'Imported Data'!U" + column + ")"
-            ],
-            ["=IF('Imported Data'!AF" + column
-              + "&lt;1, 0, 'Imported Data'!AF" + column + ")"
+              ["=IF('Imported Data'!G" + column
+                + "&lt;1, 0, 'Imported Data'!G" + column + ")"
+              ],
+              ["=IF('Imported Data'!R" + column
+                + "&lt;1, 0, 'Imported Data'!R" + column + ")"
+              ],
+              ["=IF('Imported Data'!AC" + column
+                + "&lt;1, 0, 'Imported Data'!AC" + column + ")"
+              ],
+
+              ["=IF('Imported Data'!J" + column
+                + "&lt;1, 0, 'Imported Data'!J" + column + ")"
+              ],
+              ["=IF('Imported Data'!U" + column
+                + "&lt;1, 0, 'Imported Data'!U" + column + ")"
+              ],
+              ["=IF('Imported Data'!AF" + column
+                + "&lt;1, 0, 'Imported Data'!AF" + column + ")"
+              ]
             ]
-          ]
-        );
-      }
-    );
-  }
+          );
+        }
+      );
+    }
 
-  /**
-   * Sets up spreadsheet formulas for the Weekend Days sheet PE/MD cells
-   * @function initPeMd
-   * @memberof InitStatsTemplate
-   * @private
-   * @param {Object} statsTemplate - The spreadsheet object
-   */
-  function initPeMd(statsTemplate) {
-    const sheet = statsTemplate.getSheetByName("Weekend Days");
-    Array.from({
-      length: 12
-    }).forEach(
-      function (ignore, index) {
-        const letter = String.fromCharCode(66 + index);
-        const column = 1 + index;
-        sheet.getRange(letter + "14:" + letter + "22").setValues(
-          [
-            ["=SUM('Imported Data'!B" + column
-              + ", 'Imported Data'!C" + column + ")"
-            ],
-            ["=SUM('Imported Data'!M" + column
-              + ", 'Imported Data'!N" + column + ")"
-            ],
-            ["=SUM('Imported Data'!X" + column
-              + ", 'Imported Data'!Y" + column + ")"
-            ],
+    /**
+     * Sets up spreadsheet formulas for the Weekend Days sheet PE/MD cells
+     * @function initPeMd
+     * @memberof InitStatsTemplate
+     * @private
+     * @param {Object} statsTemplate - The spreadsheet object
+     */
+    function initPeMd(statsTemplate) {
+      const sheet = statsTemplate.getSheetByName("Weekend Days");
+      Array.from({
+        length: 12
+      }).forEach(
+        function (ignore, index) {
+          const letter = String.fromCharCode(66 + index);
+          const column = 1 + index;
+          sheet.getRange(letter + "14:" + letter + "22").setValues(
+            [
+              ["=SUM('Imported Data'!B" + column
+                + ", 'Imported Data'!C" + column + ")"
+              ],
+              ["=SUM('Imported Data'!M" + column
+                + ", 'Imported Data'!N" + column + ")"
+              ],
+              ["=SUM('Imported Data'!X" + column
+                + ", 'Imported Data'!Y" + column + ")"
+              ],
 
-            ["=SUM('Imported Data'!E" + column
-              + ", 'Imported Data'!F" + column + ")"
-            ],
-            ["=SUM('Imported Data'!P" + column
-              + ", 'Imported Data'!Q" + column + ")"
-            ],
-            ["=SUM('Imported Data'!AA" + column
-              + ", 'Imported Data'!AB" + column + ")"
-            ],
+              ["=SUM('Imported Data'!E" + column
+                + ", 'Imported Data'!F" + column + ")"
+              ],
+              ["=SUM('Imported Data'!P" + column
+                + ", 'Imported Data'!Q" + column + ")"
+              ],
+              ["=SUM('Imported Data'!AA" + column
+                + ", 'Imported Data'!AB" + column + ")"
+              ],
 
-            ["=SUM('Imported Data'!H" + column
-              + ", 'Imported Data'!I" + column + ")"
-            ],
-            ["=SUM('Imported Data'!S" + column
-              + ", 'Imported Data'!T" + column + ")"
-            ],
-            ["=SUM('Imported Data'!AD" + column
-              + ", 'Imported Data'!AE" + column + ")"
+              ["=SUM('Imported Data'!H" + column
+                + ", 'Imported Data'!I" + column + ")"
+              ],
+              ["=SUM('Imported Data'!S" + column
+                + ", 'Imported Data'!T" + column + ")"
+              ],
+              ["=SUM('Imported Data'!AD" + column
+                + ", 'Imported Data'!AE" + column + ")"
+              ]
+
             ]
+          );
+        }
+      );
+    }
 
-          ]
-        );
-      }
-    );
-  }
-
-  /**
-   * Sets up spreadsheet formulas for the Weekend Days sheet bundles cells
-   * @function initBundles
-   * @memberof InitStatsTemplate
-   * @private
-   * @param {Object} statsTemplate - The spreadsheet object
-   */
-  function initBundles(statsTemplate) {
-    const sheet = statsTemplate.getSheetByName("Weekend Days");
-    Array.from({
-      length: 12
-    }).forEach(
-      function (ignore, index) {
-        const letter = String.fromCharCode(66 + index);
-        const column = 1 + index;
-        sheet.getRange(letter + "25:" + letter + "26").setValues(
-          [
-            ["=SUM('Imported Data'!K" + column
-              + ",'Imported Data'!V" + column
-              + ",'Imported Data'!AG" + column + ")"
-            ],
-            ["=SUM('Imported Data'!L" + column
-              + ",'Imported Data'!W" + column
-              + ",'Imported Data'!AH" + column + ")"
+    /**
+     * Sets up spreadsheet formulas for the Weekend Days sheet bundles cells
+     * @function initBundles
+     * @memberof InitStatsTemplate
+     * @private
+     * @param {Object} statsTemplate - The spreadsheet object
+     */
+    function initBundles(statsTemplate) {
+      const sheet = statsTemplate.getSheetByName("Weekend Days");
+      Array.from({
+        length: 12
+      }).forEach(
+        function (ignore, index) {
+          const letter = String.fromCharCode(66 + index);
+          const column = 1 + index;
+          sheet.getRange(letter + "25:" + letter + "26").setValues(
+            [
+              ["=SUM('Imported Data'!K" + column
+                + ",'Imported Data'!V" + column
+                + ",'Imported Data'!AG" + column + ")"
+              ],
+              ["=SUM('Imported Data'!L" + column
+                + ",'Imported Data'!W" + column
+                + ",'Imported Data'!AH" + column + ")"
+              ]
             ]
-          ]
-        );
-      }
-    );
-  }
+          );
+        }
+      );
+    }
 
-  /**
-   * Sets up spreadsheet formulas for the Weekend Days sheet updates cells
-   * @function initUpdates
-   * @memberof InitStatsTemplate
-   * @private
-   * @param {Object} statsTemplate - The spreadsheet object
-   */
-  function initUpdates(statsTemplate) {
-    const sheet = statsTemplate.getSheetByName("Weekend Days");
-    Array.from({
-      length: 12
-    }).forEach(
-      function (ignore, index) {
-        const letter = String.fromCharCode(66 + index);
-        const column = 1 + index;
-        sheet.getRange(letter + "30:" + letter + "32").setValues(
-          [
-            ["=IF('Imported Data'!AI" + column
-              + "&lt;1, 0, 'Imported Data'!AI" + column + ")"
-            ],
-            ["=IF('Imported Data'!AJ" + column
-              + "&lt;1, 0, 'Imported Data'!AJ" + column + ")"
-            ],
-            ["=IF('Imported Data'!AK" + column
-              + "&lt;1, 0, 'Imported Data'!AK" + column + ")"
+    /**
+     * Sets up spreadsheet formulas for the Weekend Days sheet updates cells
+     * @function initUpdates
+     * @memberof InitStatsTemplate
+     * @private
+     * @param {Object} statsTemplate - The spreadsheet object
+     */
+    function initUpdates(statsTemplate) {
+      const sheet = statsTemplate.getSheetByName("Weekend Days");
+      Array.from({
+        length: 12
+      }).forEach(
+        function (ignore, index) {
+          const letter = String.fromCharCode(66 + index);
+          const column = 1 + index;
+          sheet.getRange(letter + "30:" + letter + "32").setValues(
+            [
+              ["=IF('Imported Data'!AI" + column
+                + "&lt;1, 0, 'Imported Data'!AI" + column + ")"
+              ],
+              ["=IF('Imported Data'!AJ" + column
+                + "&lt;1, 0, 'Imported Data'!AJ" + column + ")"
+              ],
+              ["=IF('Imported Data'!AK" + column
+                + "&lt;1, 0, 'Imported Data'!AK" + column + ")"
+              ]
             ]
-          ]
-        );
-      }
-    );
-  }
+          );
+        }
+      );
+    }
 
-  /**
-   * Sets up spreadsheet formulas to link the &lt;b>Imported Data&lt;/b> sheet to the
-   * &lt;b>Weekend Days&lt;/b> sheet and also sets up formulas to compile Weekend Days
-   * sheet stats.
-   * @function main
-   * @memberof InitStatsTemplate
-   * @public
-   * @param {Object} statsTemplate - Yearly Stats template spreadsheet object
-   */
-  // eslint-disable-next-line no-unused-vars
-  function main() {
-    const statsTemplate = SpreadsheetApp.openById(
-      PropertiesService.getScriptProperties()
-      .getProperty("yearlyStatsTemplateId")
-    );
-    initCodeMoves(statsTemplate);
-    initPeMd(statsTemplate);
-    initBundles(statsTemplate);
-    initUpdates(statsTemplate);
-  }
+    /**
+     * Sets up spreadsheet formulas to link the &lt;b>Imported Data&lt;/b> sheet to the
+     * &lt;b>Weekend Days&lt;/b> sheet and also sets up formulas to compile Weekend Days
+     * sheet stats.
+     * @function main
+     * @memberof! InitStatsTemplate
+     * @public
+     * @param {Object} statsTemplate - Yearly Stats template spreadsheet object
+     */
+    // eslint-disable-next-line no-unused-vars
+    function main() {
+      const statsTemplate = SpreadsheetApp.openById(
+        PropertiesService.getScriptProperties()
+        .getProperty("yearlyStatsTemplateId")
+      );
+      initCodeMoves(statsTemplate);
+      initPeMd(statsTemplate);
+      initBundles(statsTemplate);
+      initUpdates(statsTemplate);
+    }
 
-  return Object.freeze({
-    "main": main
-  });
+    return Object.freeze({
+      "main": main
+    });
 
-}(PropertiesService, SpreadsheetApp));
+  }(PropertiesService, SpreadsheetApp));
 </code></pre>
         </article>
     </section>
@@ -259,7 +260,7 @@ const InitStatsTemplate = (function (PropertiesService, SpreadsheetApp) {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Thu Apr 09 2020 12:58:35 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Thu Apr 09 2020 13:46:20 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
