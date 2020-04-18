@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Namespace: RestoreImportedData</title>
+    <title>JSDoc: Namespace: Staff</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Namespace: RestoreImportedData</h1>
+    <h1 class="page-title">Namespace: Staff</h1>
 
     
 
@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2>RestoreImportedData</h2>
+        <h2>Staff</h2>
         
     
 </header>
@@ -70,7 +70,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="RestoreImportedData.js.html">RestoreImportedData.js</a>, <a href="RestoreImportedData.js.html#line9">line 9</a>
+        <a href="StaffUtilities.js.html">StaffUtilities.js</a>, <a href="StaffUtilities.js.html#line17">line 17</a>
     </li></ul></dd>
     
 
@@ -109,7 +109,7 @@
     
 
     
-    <h4 class="name" id="..main"><span class="type-signature">(static) </span>.main<span class="signature">(yearToRestore)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="..getNameArr"><span class="type-signature">(static) </span>.getNameArr<span class="signature">(staffObjArr)</span><span class="type-signature"> &rarr; {Array.&lt;string>}</span></h4>
     
 
     
@@ -117,9 +117,7 @@
 
 
 <div class="description">
-    Relinks a deleted yearly stats spreadsheet to its associated monthly
-totals spreadsheets.  This should only need to be run if there is a
-problem with the link between yearly stats and monthly totals sheets.
+    Get a sorted array of staff names from an array of staff objects
 </div>
 
 
@@ -155,16 +153,13 @@ problem with the link between yearly stats and monthly totals sheets.
 
         <tr>
             
-                <td class="name"><code>yearToRestore</code></td>
+                <td class="name"><code>staffObjArr</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">number</span>
-|
-
-<span class="param-type">string</span>
+<span class="param-type">Array.&lt;<a href="global.html#UserData">UserData</a>></span>
 
 
             
@@ -174,7 +169,7 @@ problem with the link between yearly stats and monthly totals sheets.
 
             
 
-            <td class="description last">YYYY format</td>
+            <td class="description last">Array of UserData objects</td>
         </tr>
 
     
@@ -215,7 +210,7 @@ problem with the link between yearly stats and monthly totals sheets.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="RestoreImportedData.js.html">RestoreImportedData.js</a>, <a href="RestoreImportedData.js.html#line19">line 19</a>
+        <a href="StaffUtilities.js.html">StaffUtilities.js</a>, <a href="StaffUtilities.js.html#line114">line 114</a>
     </li></ul></dd>
     
 
@@ -240,6 +235,188 @@ problem with the link between yearly stats and monthly totals sheets.
 
 
 
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    - A sorted array of name strings
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;string></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="..getObjArr"><span class="type-signature">(static) </span>.getObjArr<span class="signature">(email)</span><span class="type-signature"> &rarr; {Array.&lt;<a href="global.html#UserData">UserData</a>>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Takes a Google Groups email then returns an array of objects including
+group members' names and email addresses.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>email</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Google Group Email</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="StaffUtilities.js.html">StaffUtilities.js</a>, <a href="StaffUtilities.js.html#line86">line 86</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    - Array of UserData objects
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;<a href="global.html#UserData">UserData</a>></span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
