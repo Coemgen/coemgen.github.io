@@ -27,7 +27,9 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/*jslint browser:true, long:true, white:true*/
-/*global DriveApp, FIRST_STAFF_ROW, PropertiesService, SpreadsheetApp*/
+/*global 
+DriveApp, FIRST_STAFF_ROW, PropertiesService, SendEmail, SpreadsheetApp
+*/
 
 /**
  * @file Code for building the file structure used for compiling and viewing
@@ -103,9 +105,10 @@ const MonthlyRun = (
      * @private
      * @param {Object} yearFolder - the data folder
      * @param {string} yearMonthStr - used for naming the spreadsheet and sheets
+     * @param {Object} dateObj - JavaScript date object for current month
      * @returns {string} monthly data spreadsheet file ID
      */
-    function getCodeMoveFileId(yearFolder, yearMonthStr) {
+    function getCodeMoveFileId(yearFolder, yearMonthStr, dateObj) {
       // get code move template
       const codeMoveTemplate = DriveApp.getFileById(
         PropertiesService.getScriptProperties()
@@ -119,7 +122,7 @@ const MonthlyRun = (
         (yearMonthFileFound)
         ? fileIterator.next()
         : codeMoveTemplate.makeCopy(codeMoveSheetName, yearFolder));
-      var spreadsheet = {};
+      let spreadsheet = {};
 
       // edit new month spreadsheets
       if (yearMonthFileFound === false) {
@@ -128,7 +131,7 @@ const MonthlyRun = (
         );
         spreadsheet.getSheetByName("Totals")
           .getRange("A1:A3")
-          .setValue(yearMonthStr);
+          .setValue(dateObj);
 
         // for each staff member update link to and from Totals sheet
         spreadsheet.getSheetByName("Totals").getRange("A4:A23")
@@ -137,6 +140,9 @@ const MonthlyRun = (
             function (name, index) {
               // eslint-disable-next-line no-undef
               const row = FIRST_STAFF_ROW + index; /* jshint ignore:line */
+              const sheet = spreadsheet.getSheetByName(name);
+              const email = sheet.getRange("B1").getValue();
+
               spreadsheet.getSheetByName("Totals").getRange("A" + row).setValue(
                 "=HYPERLINK(\""
                 + "https://docs.google.com/spreadsheets/d/"
@@ -158,12 +164,27 @@ const MonthlyRun = (
                 + "\")"
               );
 
+              // set protections
+              try {
+                sheet.protect().setDomainEdit(false)
+                  .addEditor(email);
+                sheet.getRange("A1:Z2").protect()
+                  .setDomainEdit(false)
+                  .removeEditor(email);
+              } catch (e) {
+                console.log(e);
+              }
+
               return undefined;
             }
           );
       } // end if statement
 
       return codeMoveFile.getId();
+    }
+
+    function getHyperlinkFormula(url, label) {
+      return "=HYPERLINK(\"" + url + "\",\"" + label + "\")";
     }
 
     /**
@@ -178,36 +199,89 @@ const MonthlyRun = (
      * @param {string} yearMonthStr - YYYY-MM format
      * @returns {undefined}
      */
+    // eslint-disable-next-line max-statements
     function updateYearlyStatsFile(
       yearlyStatsFile, codeMoveFileId, month, yearMonthStr) {
-      const yearlyStatsSheet = SpreadsheetApp.openById(yearlyStatsFile.getId())
-        .getSheetByName("Imported Data");
+      const spreadsheet = SpreadsheetApp.openById(yearlyStatsFile.getId());
+      const weekendDaysSheet = spreadsheet.getSheetByName("Weekend Days");
+      const yearlyStatsSheet = spreadsheet.getSheetByName("Imported Data");
       const row = month + 1;
+      let codeMoveSheetUrl = "https://docs.google.com/spreadsheets/d/" + codeMoveFileId;
+      let codeMoveSheetLabel = yearMonthStr;
+      let codeMoveSheetHyperlinkFormula = getHyperlinkFormula(
+        codeMoveSheetUrl, codeMoveSheetLabel);
+      let colLetter = String.fromCharCode(66 + (row - 1));
+      let colNumbers = [2, 13, 24, 27, 32, 35];
 
-      yearlyStatsSheet.getRange("A" + row).setValue(yearMonthStr);
+      weekendDaysSheet.getRange("A1")
+        .setValue("Weekend Days OHS Stats " + yearMonthStr.slice(0, 4));
 
+      yearlyStatsSheet.getRange("A" + row)
+        .setValue(yearMonthStr);
+
+      yearlyStatsSheet.getRange("A" + row)
+        .setFormula(codeMoveSheetHyperlinkFormula);
+
+      colNumbers.forEach(
+        function (colNumber) {
+          const cellLocation = colLetter + colNumber.toString();
+          const cellValue = weekendDaysSheet.getRange(cellLocation).getValue();
+          weekendDaysSheet.getRange(cellLocation)
+            .setFormula(getHyperlinkFormula(codeMoveSheetUrl, cellValue));
+        }
+      );
+
+      // Grand Totals
       yearlyStatsSheet.getRange("B" + row).setFormula("=IMPORTRANGE("
         + "\"https://docs.google.com/spreadsheets/d/"
         + codeMoveFileId
         + "\",\"Totals!B24:AH24\")"
       );
 
+      // H26 PE/MD Code Move Total (calculated on Stats Weekend Stats sheet)
+
+      // H27 Application Code Move Total (calculated on Stats Weekend Stats sheet)
+
+      // H29 Magic Update Total 
       yearlyStatsSheet.getRange("AI" + row).setFormula("=IMPORTRANGE("
         + "\"https://docs.google.com/spreadsheets/d/"
         + codeMoveFileId
         + "\",\"Totals!H29\")"
       );
 
+      // H30 C/S Update Total
       yearlyStatsSheet.getRange("AJ" + row).setFormula("=IMPORTRANGE("
         + "\"https://docs.google.com/spreadsheets/d/"
         + codeMoveFileId
         + "\",\"Totals!H30\")"
       );
 
+      // H31 Expanse Update Total
       yearlyStatsSheet.getRange("AK" + row).setFormula("=IMPORTRANGE("
         + "\"https://docs.google.com/spreadsheets/d/"
         + codeMoveFileId
         + "\",\"Totals!H31\")"
+      );
+
+      // H34 Ring Deletion Total
+      yearlyStatsSheet.getRange("AL" + row).setFormula("=IMPORTRANGE("
+        + "\"https://docs.google.com/spreadsheets/d/"
+        + codeMoveFileId
+        + "\",\"Totals!H34\")"
+      );
+
+      // P34 TEST Setup Total 
+      yearlyStatsSheet.getRange("AM" + row).setFormula("=IMPORTRANGE("
+        + "\"https://docs.google.com/spreadsheets/d/"
+        + codeMoveFileId
+        + "\",\"Totals!P34\")"
+      );
+
+      // H33 HCIS Deletion Total
+      yearlyStatsSheet.getRange("AN" + row).setFormula("=IMPORTRANGE("
+        + "\"https://docs.google.com/spreadsheets/d/"
+        + codeMoveFileId
+        + "\",\"Totals!H33\")"
       );
 
       return undefined;
@@ -228,9 +302,9 @@ const MonthlyRun = (
     // eslint-disable-next-line no-unused-vars
     function main(testYear = undefined, testMonth = undefined) {
 
-      var yearFolder = {};
-      var codeMoveFileId = "";
-      var yearlyStatsFile = {};
+      let yearFolder = {};
+      let codeMoveFileId = "";
+      let yearlyStatsFile = {};
 
       const dateObj = (
         ((testYear !== undefined) &amp;&amp; (testMonth !== undefined))
@@ -246,10 +320,12 @@ const MonthlyRun = (
       /* jshint ignore:end */
       [yearFolder, yearlyStatsFile] = getYearFolder(yearStr);
 
-      codeMoveFileId = getCodeMoveFileId(yearFolder, yearMonthStr);
+      codeMoveFileId = getCodeMoveFileId(yearFolder, yearMonthStr, dateObj);
 
       updateYearlyStatsFile(
         yearlyStatsFile, codeMoveFileId, month, yearMonthStr);
+
+      SendEmail.main(codeMoveFileId, monthStr, "testing");
 
       return undefined;
     }
@@ -271,13 +347,13 @@ const MonthlyRun = (
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="InitCodeMoveTemplate.html">InitCodeMoveTemplate</a></li><li><a href="InitStatsTemplate.html">InitStatsTemplate</a></li><li><a href="MonthlyRun.html">MonthlyRun</a></li><li><a href="RestoreImportedData.html">RestoreImportedData</a></li><li><a href="Staff.html">Staff</a></li></ul><h3>Global</h3><ul><li><a href="global.html#FIRST_STAFF_ROW">FIRST_STAFF_ROW</a></li><li><a href="global.html#initCodeMoveTemplateMain">initCodeMoveTemplateMain</a></li><li><a href="global.html#initStatsTemplateMain">initStatsTemplateMain</a></li><li><a href="global.html#LAST_STAFF_ROW">LAST_STAFF_ROW</a></li><li><a href="global.html#monthlyRunMain">monthlyRunMain</a></li><li><a href="global.html#monthlyRunTest">monthlyRunTest</a></li><li><a href="global.html#restoreImportedDataMain">restoreImportedDataMain</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="InitCodeMoveTemplate.html">InitCodeMoveTemplate</a></li><li><a href="InitStatsTemplate.html">InitStatsTemplate</a></li><li><a href="MonthlyRun.html">MonthlyRun</a></li><li><a href="RestoreImportedData.html">RestoreImportedData</a></li><li><a href="SendEmail.html">SendEmail</a></li><li><a href="StaffUtilities.html">StaffUtilities</a></li></ul><h3>Global</h3><ul><li><a href="global.html#emailTest">emailTest</a></li><li><a href="global.html#FIRST_STAFF_ROW">FIRST_STAFF_ROW</a></li><li><a href="global.html#initCodeMoveTemplateMain">initCodeMoveTemplateMain</a></li><li><a href="global.html#initStatsTemplateMain">initStatsTemplateMain</a></li><li><a href="global.html#LAST_STAFF_ROW">LAST_STAFF_ROW</a></li><li><a href="global.html#monthlyRunMain">monthlyRunMain</a></li><li><a href="global.html#monthlyRunTest">monthlyRunTest</a></li><li><a href="global.html#restoreImportedDataMain">restoreImportedDataMain</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Thu Apr 23 2020 11:07:10 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Tue Jun 23 2020 12:01:28 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

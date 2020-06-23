@@ -27,7 +27,7 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/*jslint browser:true, long:true, white:true*/
-/*global PropertiesService, SpreadsheetApp, Staff*/
+/*global PropertiesService, SpreadsheetApp, StaffUtilities*/
 
 /**
  * @file Code for initialization of the Code Move Counts Template Spreadsheet.
@@ -102,21 +102,27 @@ const InitCodeMoveTemplate = (
         (staffObj) => [staffObj.name, staffObj.email]
       ).sort();
 
+      // delete existing user sheets
+      spreadsheet.getSheets().forEach(
+        function (sheet) {
+          const sheetName = sheet.getName();
+          if (sheetName !== "Totals"
+            &amp;&amp; sheetName !== "References"
+            &amp;&amp; sheetName !== "Staff") {
+            spreadsheet.deleteSheet(sheet);
+          }
+        }
+      );
+
       nameEmailMatrix.forEach(function (nameEmailArr) {
         const name = nameEmailArr[0];
         const email = nameEmailArr[1];
-        var sheet = spreadsheet.getSheetByName(name);
-
-        // delete existing sheet
-        if (sheet) {
-          spreadsheet.deleteSheet(sheet);
-        }
-
-        sheet = spreadsheet.getSheetByName("Staff")
+        var sheet = spreadsheet.getSheetByName("Staff")
           .copyTo(spreadsheet)
           .setName(name);
 
         sheet.getRange("B1:C1").setValue(email);
+
       });
 
       return undefined;
@@ -164,18 +170,22 @@ const InitCodeMoveTemplate = (
     function populateStaffRows(
       staffNameArr, totalsSheet, headerMatrix) {
       const noOfRows = LAST_STAFF_ROW - FIRST_STAFF_ROW + 1;
+      const column = 1;
+      const numColumns = 34;
 
       if (staffNameArr.length > noOfRows) {
         // throw an error
         throw "Staff list is too long for current configuration";
       }
 
+      totalsSheet.getRange(FIRST_STAFF_ROW, column, noOfRows, numColumns)
+      .clearContent();
+
       staffNameArr.forEach(function (name, index) {
         const row = FIRST_STAFF_ROW + index;
 
         totalsSheet.getRange("A" + row).setValue(name);
         totalsSheet.getRange("B" + row + ":AH" + row)
-          .clearContent()
           .setFormulas(
             [
               headerMatrix.map(function (headerArr) {
@@ -276,6 +286,31 @@ const InitCodeMoveTemplate = (
     /**
      * Wrapper for calling getFooterFormula to get a formula string for adding to
      * a footer totals cell.
+     * @function setHcisDeletionsTotal
+     * @memberof InitCodeMoveTemplate
+     * @private
+     * @param {Object} totalsSheet
+     * @param {string[]} staffNameArr
+     * @returns {undefined}
+     */
+    function setHcisDeletionsTotal(totalsSheet, staffNameArr) {
+      const action = "HCIS Deletion";
+      const cell = "H33";
+
+      const matchObj1 = {
+        "key": action,
+        "cell": "B2:B"
+      };
+      const formulaStr = getFooterFormula(staffNameArr, matchObj1);
+
+      totalsSheet.getRange(cell).setValue(formulaStr);
+
+      return undefined;
+    }
+
+    /**
+     * Wrapper for calling getFooterFormula to get a formula string for adding to
+     * a footer totals cell.
      * @function setRingDeletionsTotal
      * @memberof InitCodeMoveTemplate
      * @private
@@ -284,8 +319,8 @@ const InitCodeMoveTemplate = (
      * @returns {undefined}
      */
     function setRingDeletionsTotal(totalsSheet, staffNameArr) {
-      const action = "Dir./Ring Deletion";
-      const cell = "H33";
+      const action = "Ring Deletion";
+      const cell = "H34";
 
       const matchObj1 = {
         "key": action,
@@ -311,7 +346,7 @@ const InitCodeMoveTemplate = (
     function setTestSetupsTotal(totalsSheet, staffNameArr) {
       const action = "Dir./Ring Setup";
       const ring = "Test";
-      const cell = "H34";
+      const cell = "P34";
       const matchObj1 = {
         "key": action,
         "cell": "B2:B"
@@ -345,8 +380,8 @@ const InitCodeMoveTemplate = (
       const referencesSheet = spreadsheet.getSheetByName("References");
       const email = PropertiesService.getScriptProperties()
         .getProperty("groupEmail");
-      const staffObjArr = Staff.getObjArr(email);
-      const staffNameArr = Staff.getNameArr(staffObjArr);
+      const staffObjArr = StaffUtilities.getObjArr(email);
+      const staffNameArr = StaffUtilities.getNameArr(staffObjArr);
       const dirRingArr = getColumnArray(referencesSheet, "A:A");
       const platformArr = getColumnArray(referencesSheet, "B:B");
       const peMdNonArr = getColumnArray(referencesSheet, "C:C").slice(1);
@@ -357,7 +392,7 @@ const InitCodeMoveTemplate = (
 
       // add staff sheets
       addStaffSheets(staffObjArr, spreadsheet);
-
+      
       // populate staff rows
       populateStaffRows(staffNameArr, totalsSheet, headerMatrix, spreadsheet);
 
@@ -368,6 +403,7 @@ const InitCodeMoveTemplate = (
         "Client/Server", "Dir./Ring Update", "H30");
       setUpdatesTotal(totalsSheet, staffNameArr,
         "Expanse", "Dir./Ring Update", "H31");
+      setHcisDeletionsTotal(totalsSheet, staffNameArr);
       setRingDeletionsTotal(totalsSheet, staffNameArr);
       setTestSetupsTotal(totalsSheet, staffNameArr);
 
@@ -389,13 +425,13 @@ const InitCodeMoveTemplate = (
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="InitCodeMoveTemplate.html">InitCodeMoveTemplate</a></li><li><a href="InitStatsTemplate.html">InitStatsTemplate</a></li><li><a href="MonthlyRun.html">MonthlyRun</a></li><li><a href="RestoreImportedData.html">RestoreImportedData</a></li><li><a href="Staff.html">Staff</a></li></ul><h3>Global</h3><ul><li><a href="global.html#FIRST_STAFF_ROW">FIRST_STAFF_ROW</a></li><li><a href="global.html#initCodeMoveTemplateMain">initCodeMoveTemplateMain</a></li><li><a href="global.html#initStatsTemplateMain">initStatsTemplateMain</a></li><li><a href="global.html#LAST_STAFF_ROW">LAST_STAFF_ROW</a></li><li><a href="global.html#monthlyRunMain">monthlyRunMain</a></li><li><a href="global.html#monthlyRunTest">monthlyRunTest</a></li><li><a href="global.html#restoreImportedDataMain">restoreImportedDataMain</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="InitCodeMoveTemplate.html">InitCodeMoveTemplate</a></li><li><a href="InitStatsTemplate.html">InitStatsTemplate</a></li><li><a href="MonthlyRun.html">MonthlyRun</a></li><li><a href="RestoreImportedData.html">RestoreImportedData</a></li><li><a href="SendEmail.html">SendEmail</a></li><li><a href="StaffUtilities.html">StaffUtilities</a></li></ul><h3>Global</h3><ul><li><a href="global.html#emailTest">emailTest</a></li><li><a href="global.html#FIRST_STAFF_ROW">FIRST_STAFF_ROW</a></li><li><a href="global.html#initCodeMoveTemplateMain">initCodeMoveTemplateMain</a></li><li><a href="global.html#initStatsTemplateMain">initStatsTemplateMain</a></li><li><a href="global.html#LAST_STAFF_ROW">LAST_STAFF_ROW</a></li><li><a href="global.html#monthlyRunMain">monthlyRunMain</a></li><li><a href="global.html#monthlyRunTest">monthlyRunTest</a></li><li><a href="global.html#restoreImportedDataMain">restoreImportedDataMain</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Thu Apr 23 2020 11:07:10 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Tue Jun 23 2020 12:01:28 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

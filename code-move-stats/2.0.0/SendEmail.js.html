@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: SendEmail.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: SendEmail.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*jslint browser:true, long:true, white:true*/
+/*global
+MailApp, PropertiesService, StaffUtilities
+*/
+
+/**
+ * @file Code for sending emails.  Create a script trigger to periodically run 
+ * SendEmail.main() from Drivers.gs.
+ *
+ * &lt;p>Before using the script, values must be set for these {@linkcode
+ * https://developers.google.com/apps-script/guides/properties|
+ * script properties}:
+ * &lt;ul>
+ *  &lt;li>&lt;b>groupEmail&lt;/b>&amp;nbsp;&amp;ndash;&amp;nbsp;the Google Group email associated with this project&lt;/li>
+ * &lt;/ul>
+ *
+ * &lt;p>Run the script using the {@linkcode
+ * https://developers.google.com/apps-script/guides/v8-runtime|V8 Runtime}.
+ *
+ * @author James Burns
+ * @author Kevin Griffin &lt;kevin.griffin@gmail.com>
+ */
+
+/**
+ * @namespace SendEmail
+ */
+
+// eslint-disable-next-line no-unused-vars
+const SendEmail = (
+
+  function (MailApp, PropertiesService) {
+    "use strict";
+
+    /**
+     * Takes a month number 01-12 and returns its corresponding month short
+     * name in Jan-Dec format.
+     * @param {string} monthStr in 1-12 format
+     * @returns {string} mont in Jan format
+     */
+    function formatMonthStr(monthStr) {
+      const d = new Date();
+      d.setMonth(Number(monthStr) - 1);
+      return d.toLocaleDateString(
+        "en-US", {
+          dateStyle: "long"
+        }
+      ).split(" ")[0];
+    }
+
+    /**
+     * Send email to weekend code move group members
+     * @function main
+     * @memberof! SendEmail
+     * @public
+     * @param {string} codeMoveFileId 
+     * @param {string} monthStr 
+     * @param {string} testFlag
+     */
+    function main(codeMoveFileId, monthStr, testFlag) {
+
+      const curMonth = formatMonthStr(monthStr);
+      const subject = `MONTHLY: ${curMonth} is now available
+      for editing in Google Drive!`;
+      const body = `Hi everyone,&lt;br>&lt;br>This is your monthly reminder message for
+      the Weekend Code Move Count Spreadsheet! A new spreadsheet has been 
+      created for ${curMonth} at url 
+      ${"https://docs.google.com/spreadsheets/d/" + codeMoveFileId}. 
+      Please remember to update the spreadsheet each and every weekend. 
+      Thanks`;
+      const htmlBody = `&lt;p>Click the following link to access the new sheet: 
+        &lt;a href="${"https://docs.google.com/spreadsheets/d/" + codeMoveFileId}">
+        ${curMonth}&lt;/a>&lt;/p>&lt;div>&lt;br>
+        &lt;/div>&lt;div>Hi everyone,&lt;br>&lt;br>This is your monthly reminder message for
+        the Weekend Code Move Count Spreadsheet! A new spreadsheet has been 
+        created for ${curMonth}. Please remember to update
+        the spreadsheet each and every weekend. Thanks&lt;/div>`;
+      const options = {
+        htmlBody: htmlBody
+      };
+      let recipients = "";
+
+      if (testFlag !== undefined) {
+        recipients = "kevin.griffin@gmail.com";
+      } else {
+        recipients = StaffUtilities.getObjArr(
+          PropertiesService.getScriptProperties()
+          .getProperty("groupEmail")
+        ).map((userObj) => userObj.email);
+      }
+
+      MailApp.sendEmail(recipients, subject, body, options);
+    }
+
+    return Object.freeze({
+      main
+    });
+
+  }(MailApp, PropertiesService));</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="InitCodeMoveTemplate.html">InitCodeMoveTemplate</a></li><li><a href="InitStatsTemplate.html">InitStatsTemplate</a></li><li><a href="MonthlyRun.html">MonthlyRun</a></li><li><a href="RestoreImportedData.html">RestoreImportedData</a></li><li><a href="SendEmail.html">SendEmail</a></li><li><a href="StaffUtilities.html">StaffUtilities</a></li></ul><h3>Global</h3><ul><li><a href="global.html#emailTest">emailTest</a></li><li><a href="global.html#FIRST_STAFF_ROW">FIRST_STAFF_ROW</a></li><li><a href="global.html#initCodeMoveTemplateMain">initCodeMoveTemplateMain</a></li><li><a href="global.html#initStatsTemplateMain">initStatsTemplateMain</a></li><li><a href="global.html#LAST_STAFF_ROW">LAST_STAFF_ROW</a></li><li><a href="global.html#monthlyRunMain">monthlyRunMain</a></li><li><a href="global.html#monthlyRunTest">monthlyRunTest</a></li><li><a href="global.html#restoreImportedDataMain">restoreImportedDataMain</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Tue Jun 23 2020 12:01:28 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

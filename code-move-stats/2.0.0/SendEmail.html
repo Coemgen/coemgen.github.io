@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Namespace: InitStatsTemplate</title>
+    <title>JSDoc: Namespace: SendEmail</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Namespace: InitStatsTemplate</h1>
+    <h1 class="page-title">Namespace: SendEmail</h1>
 
     
 
@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2>InitStatsTemplate</h2>
+        <h2>SendEmail</h2>
         
     
 </header>
@@ -70,7 +70,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="InitStatsTemplate.js.html">InitStatsTemplate.js</a>, <a href="InitStatsTemplate.js.html#line19">line 19</a>
+        <a href="SendEmail.js.html">SendEmail.js</a>, <a href="SendEmail.js.html#line24">line 24</a>
     </li></ul></dd>
     
 
@@ -109,7 +109,7 @@
     
 
     
-    <h4 class="name" id="..main"><span class="type-signature">(static) </span>.main<span class="signature">(statsTemplate)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="..main"><span class="type-signature">(static) </span>.main<span class="signature">(codeMoveFileId, monthStr, testFlag)</span><span class="type-signature"></span></h4>
     
 
     
@@ -117,9 +117,7 @@
 
 
 <div class="description">
-    Sets up spreadsheet formulas to link the <b>Imported Data</b> sheet to the
-<b>Weekend Days</b> sheet and also sets up formulas to compile Weekend Days
-sheet stats.
+    Send email to weekend code move group members
 </div>
 
 
@@ -155,13 +153,13 @@ sheet stats.
 
         <tr>
             
-                <td class="name"><code>statsTemplate</code></td>
+                <td class="name"><code>codeMoveFileId</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type">string</span>
 
 
             
@@ -171,7 +169,53 @@ sheet stats.
 
             
 
-            <td class="description last">Yearly Stats template spreadsheet object</td>
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>monthStr</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>testFlag</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
         </tr>
 
     
@@ -212,7 +256,7 @@ sheet stats.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="InitStatsTemplate.js.html">InitStatsTemplate.js</a>, <a href="InitStatsTemplate.js.html#line235">line 235</a>
+        <a href="SendEmail.js.html">SendEmail.js</a>, <a href="SendEmail.js.html#line50">line 50</a>
     </li></ul></dd>
     
 
