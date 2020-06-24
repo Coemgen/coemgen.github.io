@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Namespace: RestoreImportedData</title>
+    <title>JSDoc: Namespace: Drivers</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Namespace: RestoreImportedData</h1>
+    <h1 class="page-title">Namespace: Drivers</h1>
 
     
 
@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2>RestoreImportedData</h2>
+        <h2>Drivers</h2>
         
     
 </header>
@@ -70,7 +70,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="RestoreImportedData.js.html">RestoreImportedData.js</a>, <a href="RestoreImportedData.js.html#line9">line 9</a>
+        <a href="Drivers.js.html">Drivers.js</a>, <a href="Drivers.js.html#line13">line 13</a>
     </li></ul></dd>
     
 
@@ -109,7 +109,7 @@
     
 
     
-    <h4 class="name" id="..main"><span class="type-signature">(static) </span>.main<span class="signature">(yearToRestore)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".initCodeMoveTemplateMain"><span class="type-signature">(static) </span>initCodeMoveTemplateMain<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
@@ -117,9 +117,14 @@
 
 
 <div class="description">
-    Relinks a deleted yearly stats spreadsheet to its associated monthly
-totals spreadsheets.  This should only need to be run if there is a
-problem with the link between yearly stats and monthly totals sheets.
+    Updates staff on the Code Move Count template spreadsheet.
+<br>Run this function:
+<ol>
+<li>Monthly via a <a href="https://developers.google.com/apps-script/guides/triggers/installable">Trigger</a> before running the monthlyRunMain() function</li>
+<li>Periodically when changes have been made to staffing in the associated 
+Code Move Google Group</li>
+</ol>
+template spreadsheet.
 </div>
 
 
@@ -128,58 +133,6 @@ problem with the link between yearly stats and monthly totals sheets.
 
 
 
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>yearToRestore</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-|
-
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">YYYY format</td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -215,7 +168,96 @@ problem with the link between yearly stats and monthly totals sheets.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="RestoreImportedData.js.html">RestoreImportedData.js</a>, <a href="RestoreImportedData.js.html#line19">line 19</a>
+        <a href="Drivers.js.html">Drivers.js</a>, <a href="Drivers.js.html#line32">line 32</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".monthlyRunMain"><span class="type-signature">(static) </span>monthlyRunMain<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Function to be called by a monthly <a href="https://developers.google.com/apps-script/guides/triggers/installable">Trigger</a> to set up the totals spreadsheet for each month and a yearly 
+stats spreadsheet for each year.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Drivers.js.html">Drivers.js</a>, <a href="Drivers.js.html#line17">line 17</a>
     </li></ul></dd>
     
 
