@@ -32,21 +32,18 @@ MailApp, PropertiesService, StaffUtilities
 */
 
 /**
- * @file Code for sending emails.  Create a script trigger to periodically run
- * SendEmail.main() from Drivers.gs.
- *
- * &lt;p>Before using the script, values must be set for these {@linkcode
+ * @file Defines the &lt;code>&lt;b>SendEmail&lt;/b>&lt;/code> module.  This module builds
+ * and sends emails.  Create a script trigger to periodically run the &lt;code>&lt;b>
+ * SendEmail.main()&lt;/b>&lt;/code> function via a driver function.
+ * &lt;p>Before using this module, values must be set for these {@linkcode
  * https://developers.google.com/apps-script/guides/properties
  * script properties}:
  * &lt;ul>
  *  &lt;li>&lt;b>distributionType&lt;/b>&amp;nbsp;&amp;ndash;&amp;nbsp;
  * Email distribution type (values are: &lt;b>live&lt;/b> or &lt;b>test&lt;/b>)&lt;/li>
- *  &lt;li>&lt;b>groupEmail&lt;/b>&amp;nbsp;&amp;ndash;&amp;nbsp;the Google Group email associated with this project&lt;/li>
+ *  &lt;li>&lt;b>groupEmail&lt;/b>&amp;nbsp;&amp;ndash;&amp;nbsp;the Google Group email associated
+ *  with this project&lt;/li>
  * &lt;/ul>
- *
- * &lt;p>Run the script using the {@linkcode
- * https://developers.google.com/apps-script/guides/v8-runtime V8 Runtime}.
- *
  * @author James Burns
  * @author Kevin Griffin &lt;kevin.griffin@gmail.com>
  */
@@ -62,8 +59,8 @@ const SendEmail = (
     "use strict";
 
     /**
-     * Takes a month number 01-12 and returns its corresponding month short
-     * name in Jan-Dec format.
+     * Takes a month number 01-12 and returns its corresponding month name
+     * in Jan-Dec format.
      * @param {string} monthStr in 01-12 format
      * @returns {string} month in Jan-Dec format
      */
@@ -90,31 +87,35 @@ const SendEmail = (
     function main(codeMoveFileId, yearStr, monthStr, reminder) {
 
       const curMonth = formatMonthStr(monthStr);
-      const distType = PropertiesService.getScriptProperties()
-        .getProperty("distributionType");
-      const notifType = (reminder === true) ? "REMINDER" : "ATTENTION";
-      const notifPeriod = (reminder === true) ? "weekly" : "monthly";
-      const subject = `${notifType}: Weekend Code Move Count for ${curMonth} \
-${yearStr} is available for editing in Google Drive!`;
-      const body = `Click the following link to access the current sheet: \
-${"https://docs.google.com/spreadsheets/d/" + codeMoveFileId} [Weekend Code \
-Move Count ${curMonth} ${yearStr}]
-
-Hi everyone,
-
-This is your ${notifPeriod} reminder message for the Weekend Code Move Count \
-Spreadsheet! Please remember to update the spreadsheet each and every \
-weekend. Thanks`;
-      const htmlBody = `&lt;p>Click the following link to access the current \
-sheet: &lt;a href="${"https://docs.google.com/spreadsheets/d/" + codeMoveFileId}">\
-Weekend Code Move Count ${curMonth} ${yearStr}&lt;/a>&lt;/p>&lt;div>&lt;br>&lt;/div>&lt;div>Hi \
-everyone,&lt;br>&lt;br>This is your ${notifPeriod} reminder message for the Weekend \
-Code Move Count Spreadsheet! Please remember to update the spreadsheet each \
-and every weekend. Thanks&lt;/div>`;
+      let distType = PropertiesService.getScriptProperties()
+        .getProperty("distributionType") || "";
+      const notifType = (
+        (reminder === true) ? "REMINDER" : "ATTENTION");
+      const notifPeriod = (
+        (reminder === true) ? "weekly" : "monthly");
+      const subject = `${notifType}: Weekend Code Move Count for ${curMonth}`
+        + ` ${yearStr} is available for editing in Google Drive!`;
+      const body = `Click the following link to access the current sheet: `
+        + `${"https://docs.google.com/spreadsheets/d/" + codeMoveFileId}`
+        + ` [Weekend Code Move Count ${curMonth} ${yearStr}]`
+        + "\n\nHi everyone,\n\n"
+        + `This is your ${notifPeriod} reminder message for the Weekend`
+        + ` Code Move Count Spreadsheet! Please remember to update the`
+        + ` spreadsheet each and every weekend. Thanks`;
+      const htmlBody = `&lt;p>Click the following link to access the current`
+        + ` sheet: &lt;a href="`
+        + `${"https: //docs.google.com/spreadsheets/d/" + codeMoveFileId}">`
+        + `Weekend Code Move Count ${curMonth} ${yearStr}&lt;/a>&lt;/p>&lt;div>&lt;br>`
+        + `&lt;/div>&lt;div>Hi everyone, &lt;br>&lt;br> This is your ${notifPeriod} `
+        + `reminder message for the Weekend Code Move Count Spreadsheet!`
+        + ` Please remember to update the spreadsheet each and every weekend.`
+        + ` Thanks&lt;/div>`;
       const options = {
-        htmlBody: htmlBody
+        "htmlBody": htmlBody
       };
       let recipients = "";
+
+      distType = distType.toLowerCase();
 
       if (distType === "live") {
         recipients = StaffUtilities.getObjArr(
@@ -123,7 +124,8 @@ and every weekend. Thanks&lt;/div>`;
           ).map((userObj) => userObj.email)
           .toString();
       } else if (distType === "test") {
-        recipients = "jeburns@meditech.com,kgriffin@meditech.com";
+        recipients = "eyip@meditech.com,jeburns@meditech.com,"
+          + "kgriffin@meditech.com";
       } else {
         recipients = "kevin.griffin@gmail.com";
       }
@@ -151,7 +153,7 @@ and every weekend. Thanks&lt;/div>`;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Fri Jun 26 2020 09:41:03 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Sat Jun 27 2020 15:26:11 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

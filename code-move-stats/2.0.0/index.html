@@ -63,7 +63,23 @@
     <div class="container-overview">
     
         
-            <div class="description">Driver functions used as wrappers for running public methods.</div>
+            <div class="description">Defines driver functions for running public methods.
+
+<p>Google Script Project values must be set for the following
+<a href="https://developers.google.com/apps-script/guides/properties">script properties</a>:
+<ul>
+ <li><b>codeMoveTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id for the
+ montly totals template</li>
+ <li><b>dataFolderId</b>&nbsp;&ndash;&nbsp;the parent folder for yearly data
+ folders</li>
+ <li><b>distributionType</b>&nbsp;&ndash;&nbsp;
+Email distribution type (values are: <b>live</b> or <b>test</b>)</li>
+ <li><b>groupEmail</b>&nbsp;&ndash;&nbsp;the Google Group email associated
+ with this project</li>
+ <li><b>yearlyStatsTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id for
+ the yearly stats template</li>
+</ul>
+<p>Run the script using the <a href="https://developers.google.com/apps-script/guides/v8-runtime">V8 Runtime</a>.</div>
         
 
         
@@ -156,14 +172,16 @@
     <div class="container-overview">
     
         
-            <div class="description">Code for initialization of the Code Move Counts Template Spreadsheet.
-<p>Before using the script, values must be set for the following
+            <div class="description">Defines the <code><b>InitCodeMoveTemplate</b></code> module.  This
+module initializes the Code Move Counts Template Spreadsheet.
+<p>Before using this module, values must be set for the following
 <a href="https://developers.google.com/apps-script/guides/properties">script properties</a>:
 <ul>
- <li><b>codeMoveTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id for the montly totals template</li>
- <li><b>groupEmail</b>&nbsp;&ndash;&nbsp;the Google Group email associated with this project</li>
-</ul>
-<p>Run the script using the <a href="https://developers.google.com/apps-script/guides/v8-runtime">V8 Runtime</a>.</div>
+ <li><b>codeMoveTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id for the
+ montly totals template</li>
+ <li><b>groupEmail</b>&nbsp;&ndash;&nbsp;the Google Group email associated
+ with this project</li>
+</ul></div>
         
 
         
@@ -263,14 +281,14 @@
     <div class="container-overview">
     
         
-            <div class="description">Code for initialization of the Stats Template spreadsheet's
-<b>Weekend Days</b> sheet with A1Notation references to its
-<b>Imported Data</b> sheet.
-<p>Before using the script, values must be set for the following <a href="https://developers.google.com/apps-script/guides/properties">script properties</a>:
+            <div class="description">Defines the <code><b>InitStatsTemplate</b></code> module.  This module
+initializes the Stats Template spreadsheet's <b>Weekend Days</b> sheet with
+A1Notation references to its <b>Imported Data</b> sheet.
+<p>Before using this module, values must be set for the following <a href="https://developers.google.com/apps-script/guides/properties">script properties</a>:
 <ul>
- <li><b>yearlyStatsTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id for the yearly stats template</li>
-</ul>
-<p>Run this script with the <a href="https://developers.google.com/apps-script/guides/v8-runtime">V8 Runtime</a>.</div>
+ <li><b>yearlyStatsTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id for
+ the yearly stats template</li>
+</ul></div>
         
 
         
@@ -370,18 +388,19 @@
     <div class="container-overview">
     
         
-            <div class="description">Code for building the file structure used for compiling and viewing
-stats.  Create a script trigger to run MonthlyRun.main() from its driver
-function once a month.
-
-<p>Before using the script, values must be set for these <a href="https://developers.google.com/apps-script/guides/properties">script properties</a>:
+            <div class="description">Defines the <code><b>MonthlyRun</b></code> module.  The module builds
+the file structure used for compiling and viewing stats.  Create a script
+trigger to run the <code><b>MonthlyRun.main()</b></code> method via a driver
+function one time each month.
+<p>Before using this module, values must be set for these <a href="https://developers.google.com/apps-script/guides/properties">script properties</a>:
 <ul>
- <li><b>yearlyStatsTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id for the yearly stats template</li>
- <li><b>dataFolderId</b>&nbsp;&ndash;&nbsp;the parent folder for yearly data folders</li>
- <li><b>codeMoveTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id for the montly totals template</li>
-</ul>
-
-<p>Run the script using the <a href="https://developers.google.com/apps-script/guides/v8-runtime">V8 Runtime</a>.</div>
+ <li><b>yearlyStatsTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id for
+ the yearly stats template</li>
+ <li><b>dataFolderId</b>&nbsp;&ndash;&nbsp;the parent folder for yearly data
+ folders</li>
+ <li><b>codeMoveTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id for the
+ montly totals template</li>
+</ul></div>
         
 
         
@@ -481,8 +500,9 @@ function once a month.
     <div class="container-overview">
     
         
-            <div class="description">Code for relinking monthly totals to a new yearly stats spreadsheet.
-Relinking should only be needed to repair data corruption.</div>
+            <div class="description">Defines the <code><b>RestoreImportedData</b></code> module.  This
+module relinks monthly totals to a new yearly stats spreadsheet.  Relinking
+should only be needed to repair data corruption.</div>
         
 
         
@@ -575,17 +595,16 @@ Relinking should only be needed to repair data corruption.</div>
     <div class="container-overview">
     
         
-            <div class="description">Code for sending emails.  Create a script trigger to periodically run
-SendEmail.main() from Drivers.gs.
-
-<p>Before using the script, values must be set for these <a href="https://developers.google.com/apps-script/guides/properties">script properties</a>:
+            <div class="description">Defines the <code><b>SendEmail</b></code> module.  This module builds
+and sends emails.  Create a script trigger to periodically run the <code><b>
+SendEmail.main()</b></code> function via a driver function.
+<p>Before using this module, values must be set for these <a href="https://developers.google.com/apps-script/guides/properties">script properties</a>:
 <ul>
  <li><b>distributionType</b>&nbsp;&ndash;&nbsp;
 Email distribution type (values are: <b>live</b> or <b>test</b>)</li>
- <li><b>groupEmail</b>&nbsp;&ndash;&nbsp;the Google Group email associated with this project</li>
-</ul>
-
-<p>Run the script using the <a href="https://developers.google.com/apps-script/guides/v8-runtime">V8 Runtime</a>.</div>
+ <li><b>groupEmail</b>&nbsp;&ndash;&nbsp;the Google Group email associated
+ with this project</li>
+</ul></div>
         
 
         
@@ -687,7 +706,8 @@ Email distribution type (values are: <b>live</b> or <b>test</b>)</li>
     <div class="container-overview">
     
         
-            <div class="description">Mostly functions for getting user information.</div>
+            <div class="description">Defines the <code><b>StaffUtilities</b></code> module.  This module has
+functions for getting user (staff) information.</div>
         
 
         
@@ -773,7 +793,7 @@ Email distribution type (values are: <b>live</b> or <b>test</b>)</li>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Fri Jun 26 2020 09:41:03 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Sat Jun 27 2020 15:26:11 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
