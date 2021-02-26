@@ -43,119 +43,123 @@ Does the CSCT need to be resolved or just edited upon?
  */
 
 // eslint-disable-next-line no-unused-vars
-const CsctMessages = (
+const CsctMessages = (function (GmailApp, PropertiesService, SpreadsheetApp) {
+  "use strict";
 
-  function (GmailApp, PropertiesService, SpreadsheetApp) {
-    "use strict";
+  function getPreviousFridayDate() {
+    // Date > Day index is 0-based:
+    //  0 = Sunday, 1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday
 
-    function getPreviousFridayDate() {
-      // Date > Day index is 0-based:
-      //  0 = Sunday, 1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday
+    var today, intDotW, intDaysToSubtract;
+    today = new Date();
+    intDotW = today.getDay();
 
-      var today, intDotW, intDaysToSubtract;
-      today = new Date();
-      intDotW = today.getDay();
+    intDaysToSubtract = intDotW + 2;
+    // If Saturday (6), minus 6 to get to Sunday and minus 2 more to get to Friday (Total: 9 days)
+    // Idea is that we are doing this for the previous Friday, so we need to identify the last Sunday.
 
-      intDaysToSubtract = intDotW + 2;
-      // If Saturday (6), minus 6 to get to Sunday and minus 2 more to get to Friday (Total: 9 days)
-      // Idea is that we are doing this for the previous Friday, so we need to identify the last Sunday.
+    today.setDate(today.getDate() - intDaysToSubtract);
 
-      today.setDate(today.getDate() - intDaysToSubtract);
+    var strDateFormat;
+    strDateFormat =
+      today.getFullYear() +
+      "/" +
+      (today.getMonth() + 1) +
+      "/" +
+      today.getDate();
 
-      var strDateFormat;
-      strDateFormat = today.getFullYear()
-        + "/" + (today.getMonth() + 1)
-        + "/" + today.getDate();
+    return strDateFormat;
+  }
 
-      return strDateFormat;
-    }
+  function dateDifferenceInDays(d1, d2) {
+    // JavaScript program to illustrate
+    // calculation of no. of days between two date
+    // https://www.geeksforgeeks.org/how-to-calculate-the-number-of-days-between-two-dates-in-javascript/
 
-    function dateDifferenceInDays(d1, d2) {
-      // JavaScript program to illustrate
-      // calculation of no. of days between two date
-      // https://www.geeksforgeeks.org/how-to-calculate-the-number-of-days-between-two-dates-in-javascript/
+    // To set two dates to two variables
+    var date1 = new Date(d1); // Earlier date, Format: "06/30/2019"
+    var date2 = new Date(d2); // Later date
 
-      // To set two dates to two variables
-      var date1 = new Date(d1); // Earlier date, Format: "06/30/2019"
-      var date2 = new Date(d2); // Later date
+    // To calculate the time difference of two dates
+    var Difference_In_Time = date2.getTime() - date1.getTime();
 
-      // To calculate the time difference of two dates
-      var Difference_In_Time = date2.getTime() - date1.getTime();
+    // To calculate the no. of days between two dates
+    var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
 
-      // To calculate the no. of days between two dates
-      var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+    //To display the final no. of days (result)
+    //document.write("Total number of days between dates  &lt;br>"
+    //               + date1 + "&lt;br> and &lt;br>"
+    //               + date2 + " is: &lt;br> "
+    //               + Difference_In_Days);
 
-      //To display the final no. of days (result)
-      //document.write("Total number of days between dates  &lt;br>"
-      //               + date1 + "&lt;br> and &lt;br>"
-      //               + date2 + " is: &lt;br> "
-      //               + Difference_In_Days);
+    return Difference_In_Days;
+  }
 
-      return Difference_In_Days;
-    }
+  /**
+   *
+   * @param {object} staffObj - {"John Doe", ...}
+   * @param {string} staffName
+   */
+  function staffMemmberShouldBeIncluded(staffObj, staffName) {
+    return staffObj[staffName];
+  }
 
-    /**
-     * 
-     * @param {object} staffObj - {"John Doe", ...}
-     * @param {string} staffName 
-     */
-    function staffMemmberShouldBeIncluded(staffObj, staffName) {
-      return staffObj[staffName];
-    }
+  function getEarliestUpdatePostDate(arrUpdates) {
+    // updates: [{staff:"Peter Art", day:"Friday", date:"09/25/2020",time:"11:55PM"},{staff:"Peter Art", day:"Saturday", date:"09/26/2020",time:"00:01AM"}],
+    var dateEarliest = arrUpdates.sort((a, b) => (a.date &lt; b.date ? -1 : 1));
 
+    if (dateEarliest.length > 0) return dateEarliest[0].date;
+    else return "";
+  }
 
-    function getEarliestUpdatePostDate(arrUpdates) {
+  function checkSheetForExistingRecordsAndFilterArray(sheet, tableDataRows) {
+    // Sheet Data Rows
+    // 0: Date (record logged; skip)
+    // 1: CSCT (#)
+    // 2: Site (menmonic)
+    // 3: Task (#)
+    // 4: C. Date (CSCT Date)
+    // 5: Staff Members
+    // 6: Resolved? (may be a removed column in the future)
+    // 7: Source (person or script)
+    // 8: Comments
 
-      // updates: [{staff:"Peter Art", day:"Friday", date:"09/25/2020",time:"11:55PM"},{staff:"Peter Art", day:"Saturday", date:"09/26/2020",time:"00:01AM"}],
-      var dateEarliest = arrUpdates.sort((a, b) => a.date &lt; b.date ? -1 : 1);
+    var sheetData = sheet.getDataRange().getValues();
 
-      if (dateEarliest.length > 0)
-        return dateEarliest[0].date;
-      else
-        return "";
-    }
+    var sRowIndex, sRow, sCsct, sSite, sTask, sUpdateDate, sStaffMembers;
+    var tRowIndex, tRow, tCsct, tSite, tTask, tUpdateDate, tStaffMembers;
 
-    function checkSheetForExistingRecordsAndFilterArray(sheet, tableDataRows) {
+    var sDateMonth, sDateDay, sDateYear;
 
-      // Sheet Data Rows
-      // 0: Date (record logged; skip)
-      // 1: CSCT (#)
-      // 2: Site (menmonic)
-      // 3: Task (#)
-      // 4: C. Date (CSCT Date)
-      // 5: Staff Members
-      // 6: Resolved? (may be a removed column in the future)
-      // 7: Source (person or script)
-      // 8: Comments
+    // Skip header rows in Sheet
+    for (
+      sRowIndex = 2;
+      sRowIndex &lt; sheetData.length &amp;&amp; tableDataRows.length > 0;
+      sRowIndex++
+    ) {
+      sRow = sheetData[sRowIndex];
+      sCsct = sRow[1];
+      sSite = sRow[2];
+      sTask = sRow[3];
+      sUpdateDate = new Date(sRow[4]);
+      sStaffMembers = sRow[5];
 
-      var sheetData = sheet.getDataRange().getValues();
+      sDateMonth =
+        sUpdateDate.getMonth() + 1 &lt; 10
+          ? "0" + (sUpdateDate.getMonth() + 1)
+          : sUpdateDate.getMonth() + 1;
+      sDateDay =
+        sUpdateDate.getDate() &lt; 10
+          ? "0" + sUpdateDate.getDate()
+          : sUpdateDate.getDate();
+      sDateYear = sUpdateDate.getFullYear();
+      sUpdateDate = sDateMonth + "/" + sDateDay + "/" + sDateYear; // Modify date to be same format as tableData
 
-      var sRowIndex, sRow, sCsct, sSite, sTask, sUpdateDate, sStaffMembers;
-      var tRowIndex, tRow, tCsct, tSite, tTask, tUpdateDate, tStaffMembers;
+      //sRowCompare = [sSite, sEvent, sDate, sDay, sTime, sRelease, sTask];
 
-      var sDateMonth, sDateDay, sDateYear;
-
-      // Skip header rows in Sheet
-      for (sRowIndex = 2;
-        (sRowIndex &lt; sheetData.length) &amp;&amp; (tableDataRows.length > 0); sRowIndex++) {
-        sRow = sheetData[sRowIndex];
-        sCsct = sRow[1];
-        sSite = sRow[2];
-        sTask = sRow[3];
-        sUpdateDate = new Date(sRow[4]);
-        sStaffMembers = sRow[5];
-
-        sDateMonth = (sUpdateDate.getMonth() + 1 &lt; 10) ? "0" + (sUpdateDate.getMonth() + 1) : (sUpdateDate.getMonth() + 1);
-        sDateDay = (sUpdateDate.getDate() &lt; 10) ? ("0" + sUpdateDate.getDate()) : sUpdateDate.getDate();
-        sDateYear = sUpdateDate.getFullYear();
-        sUpdateDate = sDateMonth + "/" + sDateDay + "/" + sDateYear; // Modify date to be same format as tableData
-
-        //sRowCompare = [sSite, sEvent, sDate, sDay, sTime, sRelease, sTask];
-
-        for (tRowIndex = (tableDataRows.length - 1); tRowIndex >= 0; tRowIndex--) {
-
-          // Table Data Rows
-          /* TEMP STRUCTURE PLAN
+      for (tRowIndex = tableDataRows.length - 1; tRowIndex >= 0; tRowIndex--) {
+        // Table Data Rows
+        /* TEMP STRUCTURE PLAN
              -------------------
            GoogleGroupPosts
            [
@@ -172,42 +176,46 @@ const CsctMessages = (
            ]
           */
 
-          tRow = tableDataRows[tRowIndex];
-          tCsct = tRow.csct;
-          tSite = tRow.site;
-          tTask = tRow.task;
-          tUpdateDate = getEarliestUpdatePostDate(tRow.updates);
-          tStaffMembers = (tRow.staffMembers.join(","));
+        tRow = tableDataRows[tRowIndex];
+        tCsct = tRow.csct;
+        tSite = tRow.site;
+        tTask = tRow.task;
+        tUpdateDate = getEarliestUpdatePostDate(tRow.updates);
+        tStaffMembers = tRow.staffMembers.join(",");
 
-          //Logger.log("Comparing: " + sRowCompare + " vs. " + tRowCompare);
-          //Logger.log("Comparing: " + sRow + " vs. " + tRow);
-          //Logger.log(sCsct, tCsct, (sCsct == tCsct));
-          //Logger.log(sSite, tSite, (sSite == tSite));
-          //Logger.log(sTask, tTask, (sTask == tTask));
-          //Logger.log(sUpdateDate, tUpdateDate, (sUpdateDate == tUpdateDate));
-          //Logger.log(sStaffMembers, tStaffMembers, (sStaffMembers == tStaffMembers));
+        //Logger.log("Comparing: " + sRowCompare + " vs. " + tRowCompare);
+        //Logger.log("Comparing: " + sRow + " vs. " + tRow);
+        //Logger.log(sCsct, tCsct, (sCsct == tCsct));
+        //Logger.log(sSite, tSite, (sSite == tSite));
+        //Logger.log(sTask, tTask, (sTask == tTask));
+        //Logger.log(sUpdateDate, tUpdateDate, (sUpdateDate == tUpdateDate));
+        //Logger.log(sStaffMembers, tStaffMembers, (sStaffMembers == tStaffMembers));
 
-          //if ( sRowCompare === tRowCompare )
-          if ((sCsct == tCsct) &amp;&amp; (sSite == tSite) &amp;&amp; (sTask == tTask) &amp;&amp; (sUpdateDate == tUpdateDate) &amp;&amp; (sStaffMembers == tStaffMembers)) {
-            //Logger.log("Filtered at: " + tRowIndex);
-            //Logger.log(tRow);
-            tableDataRows.splice(tRowIndex, 1); // Removes the record from array
-          }
-
+        //if ( sRowCompare === tRowCompare )
+        if (
+          sCsct == tCsct &amp;&amp;
+          sSite == tSite &amp;&amp;
+          sTask == tTask &amp;&amp;
+          sUpdateDate == tUpdateDate &amp;&amp;
+          sStaffMembers == tStaffMembers
+        ) {
+          //Logger.log("Filtered at: " + tRowIndex);
+          //Logger.log(tRow);
+          tableDataRows.splice(tRowIndex, 1); // Removes the record from array
         }
       }
-
-      return tableDataRows;
     }
 
-    function addCsctMessagesToSpreadsheet(sheet, tableData) {
+    return tableDataRows;
+  }
 
-      // 1.) Split passed in data into variables
-      // 2.) Build row data
-      // 3.) Append row data to spreadsheet
-      // 4.) Set formulas on recently added row (task link, csct link)
+  function addCsctMessagesToSpreadsheet(sheet, tableData) {
+    // 1.) Split passed in data into variables
+    // 2.) Build row data
+    // 3.) Append row data to spreadsheet
+    // 4.) Set formulas on recently added row (task link, csct link)
 
-      /* TEMP STRUCTURE PLAN
+    /* TEMP STRUCTURE PLAN
            -------------------
            GoogleGroupPosts
            [
@@ -224,88 +232,109 @@ const CsctMessages = (
            ]
         */
 
-      var cDate = new Date();
-      var cYear = cDate.getFullYear();
-      var cMonth = (cDate.getMonth() + 1 &lt; 10) ? "0" + (cDate.getMonth() + 1) : (cDate.getMonth() + 1);
-      var cDay = cDate.getDate();
+    var cDate = new Date();
+    var cYear = cDate.getFullYear();
+    var cMonth =
+      cDate.getMonth() + 1 &lt; 10
+        ? "0" + (cDate.getMonth() + 1)
+        : cDate.getMonth() + 1;
+    var cDay = cDate.getDate();
 
-      var strDate = cYear + "-" + cMonth + "-" + cDay;
+    var strDate = cYear + "-" + cMonth + "-" + cDay;
 
-      var urlBaseJira = "https://jira.meditech.com/browse/";
+    var urlBaseJira = "https://jira.meditech.com/browse/";
 
-      var rowData, rowDataNew, vSource;
-      var csct, ggUrl, updates, staffMembers, site, task, dateUpdate, jira;
+    var rowData, rowDataNew, vSource;
+    var csct, ggUrl, updates, staffMembers, site, task, dateUpdate, jira;
 
-      for (var i = 0; i &lt; tableData.length; i++) {
-        rowData = tableData[i];
-        jira = rowData.jira;
-        csct = rowData.csct;
-        ggUrl = rowData.ggUrl;
-        //updates = rowData.updates.sort((a,b) => a.date &lt; b.date ? -1 : 1);
-        dateUpdate = getEarliestUpdatePostDate(rowData.updates);
-        staffMembers = rowData.staffMembers;
-        site = rowData.site;
-        task = rowData.task;
-        vSource = "Script/CSCT";
+    for (var i = 0; i &lt; tableData.length; i++) {
+      rowData = tableData[i];
+      jira = rowData.jira;
+      csct = rowData.csct;
+      ggUrl = rowData.ggUrl;
+      //updates = rowData.updates.sort((a,b) => a.date &lt; b.date ? -1 : 1);
+      dateUpdate = getEarliestUpdatePostDate(rowData.updates);
+      staffMembers = rowData.staffMembers;
+      site = rowData.site;
+      task = rowData.task;
+      vSource = "Script/CSCT";
 
-        if (staffMembers.length == 0)
-          continue; // Do not add CSCT for staff members we aren't tracking.
+      if (staffMembers.length == 0) continue; // Do not add CSCT for staff members we aren't tracking.
 
-        // Calculate the number of days spent working on the CSCT by using the Update Date
-        //Logger.log("Review dates for index: " + i);
+      // Calculate the number of days spent working on the CSCT by using the Update Date
+      //Logger.log("Review dates for index: " + i);
 
-        var daysWorked = [];
-        for (var d = 0; d &lt; rowData.updates.length; d++) {
-          daysWorked.push(rowData.updates[d].date);
-          //Logger.log("Date found for " + csct + ": " + rowData.updates[d].date);
-        }
-
-        daysWorked = daysWorked.filter(function (elem, ind) {
-          return daysWorked.indexOf(elem) === ind;
-        });
-
-        var datesWorked = daysWorked.length;
-        rowDataNew = [strDate, csct, site, task, dateUpdate, (staffMembers.join(",")), datesWorked, "", vSource];
-
-        //Logger.log("Appending to Spreadsheet");
-        //Logger.log(rowDataNew);
-
-        //               Date	 CSCT	Site  Task  C. Date	            Staff Member(s)	    Days Worked   Resolved  Source
-        //                 A      B      C     D      E                     F                  G          H           I
-        //sheet.appendRow([strDate, csct, site, task, updates[0].date, (staffMembers.join(",")), "", vSource]);
-        sheet.appendRow(rowDataNew);
-
-        // Get last row, and update CSCT (B) and Task (D) to be a hyperlink
-        var vFormulaCsctHyperlink;
-        vFormulaCsctHyperlink = (jira) ? "=HYPERLINK(\"" + urlBaseJira + csct + "\",\"" + csct + "\")" : "=HYPERLINK(\"" + ggUrl + "\",\"" + csct + "\")"; // Use JIRA URL if JIRA, otherwise Google Group post URL
-        sheet.getRange(("B" + sheet.getLastRow())).setFormula(vFormulaCsctHyperlink);
-
-        if (task.toString().length > 0) {
-          var vFormulaTaskHyperlink = "=HYPERLINK(\"https://cswebtools.meditech.com/tasks/view?taskID=" + task + "\",\"" + task + "\")";
-          sheet.getRange(("D" + sheet.getLastRow())).setFormula(vFormulaTaskHyperlink);
-        }
-
-        // Add notes for dates worked
-        sheet.getRange(("G" + sheet.getLastRow())).setNote(daysWorked.join(", "));
-
+      var daysWorked = [];
+      for (var d = 0; d &lt; rowData.updates.length; d++) {
+        daysWorked.push(rowData.updates[d].date);
+        //Logger.log("Date found for " + csct + ": " + rowData.updates[d].date);
       }
+
+      daysWorked = daysWorked.filter(function (elem, ind) {
+        return daysWorked.indexOf(elem) === ind;
+      });
+
+      var datesWorked = daysWorked.length;
+      rowDataNew = [
+        strDate,
+        csct,
+        site,
+        task,
+        dateUpdate,
+        staffMembers.join(","),
+        datesWorked,
+        "",
+        vSource,
+      ];
+
+      //Logger.log("Appending to Spreadsheet");
+      //Logger.log(rowDataNew);
+
+      //               Date	 CSCT	Site  Task  C. Date	            Staff Member(s)	    Days Worked   Resolved  Source
+      //                 A      B      C     D      E                     F                  G          H           I
+      //sheet.appendRow([strDate, csct, site, task, updates[0].date, (staffMembers.join(",")), "", vSource]);
+      sheet.appendRow(rowDataNew);
+
+      // Get last row, and update CSCT (B) and Task (D) to be a hyperlink
+      var vFormulaCsctHyperlink;
+      vFormulaCsctHyperlink = jira
+        ? '=HYPERLINK("' + urlBaseJira + csct + '","' + csct + '")'
+        : '=HYPERLINK("' + ggUrl + '","' + csct + '")'; // Use JIRA URL if JIRA, otherwise Google Group post URL
+      sheet
+        .getRange("B" + sheet.getLastRow())
+        .setFormula(vFormulaCsctHyperlink);
+
+      if (task.toString().length > 0) {
+        var vFormulaTaskHyperlink =
+          '=HYPERLINK("https://cswebtools.meditech.com/tasks/view?taskID=' +
+          task +
+          '","' +
+          task +
+          '")';
+        sheet
+          .getRange("D" + sheet.getLastRow())
+          .setFormula(vFormulaTaskHyperlink);
+      }
+
+      // Add notes for dates worked
+      sheet.getRange("G" + sheet.getLastRow()).setNote(daysWorked.join(", "));
     }
+  }
 
-    // ---------------------------------------------------------------------
+  // ---------------------------------------------------------------------
 
-    // **
-    // * Matches each section name in the "Today's topic summary" section at the top of the message.
-    // * From the match, we get:
-    // *  - Section name
-    // *  - Number of updates for a section
-    // *  - CSCT # (if JIRA)
-    // *  - Task # (if Non-JIRA)
-    // *  - Site
-    // *
-    function processTopicHeadline(bodyPlain, arrCsctObjects) {
-
-      // Example of "Today's topic summary"
-      /*
+  // **
+  // * Matches each section name in the "Today's topic summary" section at the top of the message.
+  // * From the match, we get:
+  // *  - Section name
+  // *  - Number of updates for a section
+  // *  - CSCT # (if JIRA)
+  // *  - Task # (if Non-JIRA)
+  // *  - Site
+  // *
+  function processTopicHeadline(bodyPlain, arrCsctObjects) {
+    // Example of "Today's topic summary"
+    /*
       =============================================================================
       Today's topic summary
       =============================================================================
@@ -320,278 +349,345 @@ const CsctMessages = (
           http://groups.google.com/a/meditech.com/group/clientservicescontinuanceteam/t/6b0d4ae596f18fee
       */
 
-      // Matches:
-      // [
-      //   [Overall match, Topic, Url], ...
-      // ]
+    // Matches:
+    // [
+    //   [Overall match, Topic, Url], ...
+    // ]
 
-      var matches = [...bodyPlain.matchAll(/\s{2}-\s(\([A-Z]+\).+|\[JIRA\].+)\s+(http:\/\/.+)/g)]; // Pre-JIRA &amp; JIRA Headline link match // Matching:  - [JIRA] Updates for CSCT-...
+    var matches = [
+      ...bodyPlain.matchAll(
+        /\s{2}-\s(\([A-Z]+\).+|\[JIRA\].+)\s+(http:\/\/.+)/g
+      ),
+    ]; // Pre-JIRA &amp; JIRA Headline link match // Matching:  - [JIRA] Updates for CSCT-...
 
-      var topic, url, jira, csct, site, task, updCount;
+    var topic, url, jira, csct, site, task, updCount;
 
-      for (var i = 0; i &lt; matches.length; i++) {
-        topic = matches[i][1];
-        url = matches[i][2];
-        jira = (topic.indexOf("[JIRA]") >= 0) ? true : false;
-        csct = "";
-        site = "";
-        task = "";
-        updCount = topic.match(new RegExp(/\[([0-9]+) Update/))[1];
+    for (var i = 0; i &lt; matches.length; i++) {
+      topic = matches[i][1];
+      url = matches[i][2];
+      jira = topic.indexOf("[JIRA]") >= 0 ? true : false;
+      csct = "";
+      site = "";
+      task = "";
+      updCount = topic.match(new RegExp(/\[([0-9]+) Update/))[1];
 
-        if (jira &amp;&amp; topic.match(new RegExp("CSCT-[0-9]+")) !== null)
-          csct = topic.match(new RegExp("CSCT-[0-9]+"))[0];
+      if (jira &amp;&amp; topic.match(new RegExp("CSCT-[0-9]+")) !== null)
+        csct = topic.match(new RegExp("CSCT-[0-9]+"))[0];
 
-        if (jira &amp;&amp; topic.match(new RegExp(/CSCT-[0-9]+: [A-Z]{3} /)) !== null)
-          site = topic.match(new RegExp(/CSCT-[0-9]+: [A-Z]{3} /))[0].substr(-4, 3); // Grab the site mnemonic after the CSCT number; 1st part of CSCT JIRA description
+      if (jira &amp;&amp; topic.match(new RegExp(/CSCT-[0-9]+: [A-Z]{3} /)) !== null)
+        site = topic
+          .match(new RegExp(/CSCT-[0-9]+: [A-Z]{3} /))[0]
+          .substr(-4, 3); // Grab the site mnemonic after the CSCT number; 1st part of CSCT JIRA description
 
-        if (jira &amp;&amp; (site == "") &amp;&amp; topic.match(new RegExp(/CSCT-[0-9]+: &lt;([A-Z]{3})> /)) !== null)
-          site = topic.match(new RegExp(/CSCT-[0-9]+: &lt;([A-Z]{3})> /))[1]; // Older CSCTs had the site mnemonic in angle brackets &lt;>
+      if (
+        jira &amp;&amp;
+        site == "" &amp;&amp;
+        topic.match(new RegExp(/CSCT-[0-9]+: &lt;([A-Z]{3})> /)) !== null
+      )
+        site = topic.match(new RegExp(/CSCT-[0-9]+: &lt;([A-Z]{3})> /))[1]; // Older CSCTs had the site mnemonic in angle brackets &lt;>
 
-        if (!jira &amp;&amp; topic.match(new RegExp(/\([A-Z]{3}\)/)) !== null)
-          site = topic.match(new RegExp(/\([A-Z]{3}\)/))[0].substr(1, 3); // Remove outer parentheses
+      if (!jira &amp;&amp; topic.match(new RegExp(/\([A-Z]{3}\)/)) !== null)
+        site = topic.match(new RegExp(/\([A-Z]{3}\)/))[0].substr(1, 3); // Remove outer parentheses
 
-        if (!jira &amp;&amp; topic.match(new RegExp(/Task# [0-9]+/)) !== null)
-          task = topic.match(new RegExp(/Task# [0-9]+/))[0].replace("Task# ", ""); // Remove text
+      if (!jira &amp;&amp; topic.match(new RegExp(/Task# [0-9]+/)) !== null)
+        task = topic.match(new RegExp(/Task# [0-9]+/))[0].replace("Task# ", ""); // Remove text
 
-        topic = topic.replace(/ \[[0-9]+ (Update|Updates)\]/, ""); // Remove " [# Updates]" at the end
+      topic = topic.replace(/ \[[0-9]+ (Update|Updates)\]/, ""); // Remove " [# Updates]" at the end
 
-        arrCsctObjects.push({
-          "topic": topic,
-          "ggUrl": url,
-          "jira": jira,
-          "csct": csct,
-          "site": site,
-          "task": task,
-          "staffMembers": [],
-          "updates": [],
-          "updCount": updCount
-        });
+      arrCsctObjects.push({
+        topic: topic,
+        ggUrl: url,
+        jira: jira,
+        csct: csct,
+        site: site,
+        task: task,
+        staffMembers: [],
+        updates: [],
+        updCount: updCount,
+      });
+    }
+
+    // DEBUG:
+    //Logger.log("CSCT Objects");
+    //Logger.log(arrCsctObjects);
+
+    return undefined; // Return undefined as we are updated global variable
+  }
+
+  // ---------------------------------------------------------------------
+
+  function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&amp;"); // $&amp; means the whole matched string
+  }
+
+  // ---------------------------------------------------------------------
+
+  function processAllTopicSections(bodyPlain, arrCsctObjects, staffObj) {
+    // DEBUG:
+    //Logger.log("processAllTopicSections - bodyPlain");
+    //Logger.log(bodyPlain);
+
+    var objCsct, topic, strRegEx, reTopicSection, match, strTopicSection;
+
+    for (var i = 0; i &lt; arrCsctObjects.length; i++) {
+      objCsct = arrCsctObjects[i];
+      topic = objCsct.topic;
+
+      // if index is last, change the regexp so that it captures up to the end of message
+      if (arrCsctObjects.length - 1 == i) {
+        //continue;
+        strRegEx =
+          "Topic: " +
+          escapeRegExp(topic) +
+          "([\\s\\S]+?=============================================================================)" +
+          "([\\s\\S]+?You received this digest because you're subscribed to updates for this group.)";
+      } else {
+        strRegEx =
+          "Topic: " +
+          escapeRegExp(topic) +
+          "([\\s\\S]+?=============================================================================)" +
+          "([\\s\\S]+?=============================================================================)";
       }
 
-      // DEBUG:
-      //Logger.log("CSCT Objects");
-      //Logger.log(arrCsctObjects);
+      reTopicSection = new RegExp(strRegEx);
+      match = bodyPlain.match(reTopicSection);
 
-      return undefined; // Return undefined as we are updated global variable
-    }
-
-    // ---------------------------------------------------------------------
-
-    function escapeRegExp(string) {
-      return string.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&amp;"); // $&amp; means the whole matched string
-    }
-
-    // ---------------------------------------------------------------------
-
-    function processAllTopicSections(bodyPlain, arrCsctObjects, staffObj) {
-
-      // DEBUG:
-      //Logger.log("processAllTopicSections - bodyPlain");
-      //Logger.log(bodyPlain);
-
-      var objCsct, topic, strRegEx, reTopicSection, match, strTopicSection;
-
-      for (var i = 0; i &lt; arrCsctObjects.length; i++) {
-        objCsct = arrCsctObjects[i];
-        topic = objCsct.topic;
-
-        // if index is last, change the regexp so that it captures up to the end of message
-        if ((arrCsctObjects.length - 1) == i) {
-          //continue;
-          strRegEx = "Topic\: " + escapeRegExp(topic)
-            + "([\\s\\S]+?=============================================================================)"
-            + "([\\s\\S]+?You received this digest because you're subscribed to updates for this group.)";
-        } else {
-          strRegEx = "Topic\: " + escapeRegExp(topic)
-            + "([\\s\\S]+?=============================================================================)"
-            + "([\\s\\S]+?=============================================================================)";
-        }
-
-        reTopicSection = new RegExp(strRegEx);
-        match = bodyPlain.match(reTopicSection);
-
-        if (match !== null) {
-          strTopicSection = match[2];
-          processOneTopicSection(strTopicSection, objCsct, staffObj)
-        }
-
+      if (match !== null) {
+        strTopicSection = match[2];
+        processOneTopicSection(strTopicSection, objCsct, staffObj);
       }
-
-      // DEBUG:
-      //Logger.log("processAllTopicSections - arrCsctObjects");
-      //Logger.log(arrCsctObjects);
-
     }
 
-    // ---------------------------------------------------------------------
+    // DEBUG:
+    //Logger.log("processAllTopicSections - arrCsctObjects");
+    //Logger.log(arrCsctObjects);
+  }
 
-    // **
-    // * Processes a Topic Section
-    // *
+  // ---------------------------------------------------------------------
+
+  // **
+  // * Processes a Topic Section
+  // *
+  // * Passes back updated objects
+  //    - If JIRA or non-JIRA, get date, time, staff member
+  //    - If JIRA, maybe get task
+  //    - If non-JIRA, get CSCT
+  // *
+  // Passes back objects to be updated from Topic Sections
+  //
+  function processOneTopicSection(strTopicSection, csctObject, staffObj) {
     // * Passes back updated objects
     //    - If JIRA or non-JIRA, get date, time, staff member
     //    - If JIRA, maybe get task
     //    - If non-JIRA, get CSCT
-    // *
-    // Passes back objects to be updated from Topic Sections
-    //
-    function processOneTopicSection(strTopicSection, csctObject, staffObj) {
 
-      // * Passes back updated objects
-      //    - If JIRA or non-JIRA, get date, time, staff member
-      //    - If JIRA, maybe get task
-      //    - If non-JIRA, get CSCT
+    //Logger.log("Section");
+    //Logger.log(strTopicSection);
 
-      //Logger.log("Section");
-      //Logger.log(strTopicSection);
+    // JIRA: Try to get a Task Number
+    if (
+      csctObject.jira &amp;&amp;
+      csctObject.task == "" &amp;&amp;
+      strTopicSection.match(/AMS Task Number:\s+([0-9]+)/) !== null
+    )
+      csctObject.task = strTopicSection.match(/AMS Task Number:\s+([0-9]+)/)[1];
 
-      // JIRA: Try to get a Task Number
-      if (csctObject.jira &amp;&amp; (csctObject.task == "") &amp;&amp; strTopicSection.match(/AMS Task Number:\s+([0-9]+)/) !== null)
-        csctObject.task = strTopicSection.match(/AMS Task Number:\s+([0-9]+)/)[1];
+    // JIRA: Try to get a Site mnemonic
+    if (
+      csctObject.jira &amp;&amp;
+      csctObject.site == "" &amp;&amp;
+      strTopicSection.match(/AMS Customer:\s+([A-Z]{3})/) !== null
+    )
+      csctObject.site = strTopicSection.match(/AMS Customer:\s+([A-Z]{3})/)[1];
 
-      // JIRA: Try to get a Site mnemonic
-      if (csctObject.jira &amp;&amp; (csctObject.site == "") &amp;&amp; strTopicSection.match(/AMS Customer:\s+([A-Z]{3})/) !== null)
-        csctObject.site = strTopicSection.match(/AMS Customer:\s+([A-Z]{3})/)[1];
+    // Non-JIRA: Get CSCT #
+    // Search for the first CSCT # mentioned within the Topic Section
+    if (
+      !csctObject.jira &amp;&amp;
+      csctObject.csct == "" &amp;&amp;
+      strTopicSection.match(/CSCT \#(\d+)/) !== null
+    )
+      csctObject.csct = strTopicSection.match(/CSCT \#(\d+)/)[1];
 
-      // Non-JIRA: Get CSCT #
-      // Search for the first CSCT # mentioned within the Topic Section
-      if (!(csctObject.jira) &amp;&amp; (csctObject.csct == "") &amp;&amp; strTopicSection.match(/CSCT \#(\d+)/) !== null)
-        csctObject.csct = strTopicSection.match(/CSCT \#(\d+)/)[1];
+    // Get Updates
 
-      // Get Updates
+    var matches;
+    var months, days, staff, dotw, month, day, time, ggUpdateDate;
+    var year = new Date().getFullYear();
 
-      var matches;
-      var months, days, staff, dotw, month, day, time, ggUpdateDate;
-      var year = (new Date().getFullYear());
+    if (csctObject.jira) {
+      //[From: "Peter Art (Jira)" &lt;jira-noreply@meditech.com>
+      //Date: Feb 06 11:50PM -0500, From: "Claire Fitzgerald (Jira)" &lt;jira-noreply@meditech.com>
+      //Date: Feb 07 12:59AM -0500]
 
-      if (csctObject.jira) {
-        //[From: "Peter Art (Jira)" &lt;jira-noreply@meditech.com>
-        //Date: Feb 06 11:50PM -0500, From: "Claire Fitzgerald (Jira)" &lt;jira-noreply@meditech.com>
-        //Date: Feb 07 12:59AM -0500]
+      matches = [
+        ...strTopicSection.matchAll(
+          /From: \"(.+)? \(Jira\)\" &lt;.+>\s+Date: ([A-z]{3}) ([0-9]{2}) ([0-9:A-Z]+) -([0-9]+)/g
+        ),
+      ]; // Pre-Jira
+      //Logger.log("JIRA Staff/Date Match");
+      //Logger.log(matches);
+      //Logger.log(matches[0][1]);
+      //Logger.log(matches[0][2]);
+      //Logger.log(matches[0][3]);
+      //Logger.log(matches[0][4]);
 
-        matches = [...strTopicSection.matchAll(/From: \"(.+)? \(Jira\)\" &lt;.+>\s+Date: ([A-z]{3}) ([0-9]{2}) ([0-9:A-Z]+) -([0-9]+)/g)]; // Pre-Jira
-        //Logger.log("JIRA Staff/Date Match");
-        //Logger.log(matches);
-        //Logger.log(matches[0][1]);
-        //Logger.log(matches[0][2]);
-        //Logger.log(matches[0][3]);
-        //Logger.log(matches[0][4]);
+      months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+      days = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
 
-        months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      for (var i = 0; i &lt; matches.length; i++) {
+        // Match
+        // 0: Overall match (i.e. "Last Edited by ....")
+        staff = matches[i][1]; // 1: staff (Ex: "Peter Art")
+        month = months.indexOf(matches[i][2]) + 1; // 2: month (Ex: "Sep")
+        day = matches[i][3]; // 3: day (Ex: "06")
+        time = matches[i][4]; // 4: time (Ex: "4:00PM")
 
-        for (var i = 0; i &lt; matches.length; i++) {
-          // Match
-          // 0: Overall match (i.e. "Last Edited by ....")
-          staff = matches[i][1]; // 1: staff (Ex: "Peter Art")
-          month = months.indexOf(matches[i][2]) + 1; // 2: month (Ex: "Sep")
-          day = matches[i][3]; // 3: day (Ex: "06")
-          time = matches[i][4]; // 4: time (Ex: "4:00PM")
+        dotw = days[new Date(matches[i][2] + day + year).getDay()]; // dotw (Ex: "Friday") // new Date("Feb 06 2021")
+        month = month &lt; 10 ? "0" + month : month;
+        ggUpdateDate = month + "/" + day + "/" + year;
 
-          dotw = days[(new Date(matches[i][2] + day + year).getDay())]; // dotw (Ex: "Friday") // new Date("Feb 06 2021")
-          month = (month &lt; 10) ? ("0" + month) : month;
-          ggUpdateDate = month + "/" + day + "/" + year;
+        csctObject.updates.push({
+          staff: staff,
+          day: dotw,
+          date: ggUpdateDate,
+          time: time,
+        });
 
-          csctObject.updates.push({
-            staff: staff,
-            day: dotw,
-            date: ggUpdateDate,
-            time: time
-          });
+        if (
+          staffMemmberShouldBeIncluded(staffObj, staff) &amp;&amp;
+          !csctObject.staffMembers.includes(staff)
+        )
+          csctObject.staffMembers.push(staff);
+      }
+    } else {
+      matches = [
+        ...strTopicSection.matchAll(
+          /Last edited by ([A-Za-z\s]+) on ([A-Za-z]+), ([A-Za-z]+) (\d+) at ([\d\:A-Z]+)/g
+        ),
+      ]; // Pre-Jira
+      // Pre-JIRA Ex: Last edited by Andrew Leahy on Thursday, January 21 at 4:57PM
+      // From: CSCT Message System &lt;clientservicescontinuanceteam@meditech.com>
+      // Date: Jan 17 04:03PM -0500
 
-          if (staffMemmberShouldBeIncluded(staffObj, staff) &amp;&amp; !csctObject.staffMembers.includes(staff))
-            csctObject.staffMembers.push(staff);
-        }
+      months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
 
-      } else {
-        matches = [...strTopicSection.matchAll(/Last edited by ([A-Za-z\s]+) on ([A-Za-z]+), ([A-Za-z]+) (\d+) at ([\d\:A-Z]+)/g)]; // Pre-Jira
-        // Pre-JIRA Ex: Last edited by Andrew Leahy on Thursday, January 21 at 4:57PM
-        // From: CSCT Message System &lt;clientservicescontinuanceteam@meditech.com>
-        // Date: Jan 17 04:03PM -0500
+      for (var i = 0; i &lt; matches.length; i++) {
+        // Match
+        // 0: Overall match (i.e. "Last Edited by ....")
+        staff = matches[i][1]; // 1: staff (Ex: "Peter Art")
+        dotw = matches[i][2]; // 2: dotw (Ex: "Friday")
+        month = months.indexOf(matches[i][3]) + 1; // 3: month (Ex: "September")
+        day = matches[i][4]; // 4: day (Ex: "25")
+        time = matches[i][5]; // 5: time (Ex: "4:00PM")
 
-        months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        month = month &lt; 10 ? "0" + month : month;
+        ggUpdateDate = month + "/" + day + "/" + year;
 
-        for (var i = 0; i &lt; matches.length; i++) {
+        csctObject.updates.push({
+          staff: staff,
+          day: dotw,
+          date: ggUpdateDate,
+          time: time,
+        });
 
-          // Match
-          // 0: Overall match (i.e. "Last Edited by ....")
-          staff = matches[i][1]; // 1: staff (Ex: "Peter Art")
-          dotw = matches[i][2]; // 2: dotw (Ex: "Friday")
-          month = months.indexOf(matches[i][3]) + 1; // 3: month (Ex: "September")
-          day = matches[i][4]; // 4: day (Ex: "25")
-          time = matches[i][5]; // 5: time (Ex: "4:00PM")
-
-          month = (month &lt; 10) ? ("0" + month) : month;
-          ggUpdateDate = month + "/" + day + "/" + year;
-
-          csctObject.updates.push({
-            staff: staff,
-            day: dotw,
-            date: ggUpdateDate,
-            time: time
-          });
-
-          if (staffMemmberShouldBeIncluded(staffObj, staff) &amp;&amp; !csctObject.staffMembers.includes(staff))
-            csctObject.staffMembers.push(staff);
-
-        }
+        if (
+          staffMemmberShouldBeIncluded(staffObj, staff) &amp;&amp;
+          !csctObject.staffMembers.includes(staff)
+        )
+          csctObject.staffMembers.push(staff);
       }
     }
+  }
 
-    // ---------------------------------------------------------------------
+  // ---------------------------------------------------------------------
 
-    function processEmailMessage(message, staffObj) {
-      // Pseudo Code
-      // -----------
-      // 1.) Get the plain text of the Message for further processing via Regular Expressions (RegExp)
-      // 2.) Get the headline for each topic, from section "Today's topic summary"
-      // 3.) Get each topic
-      // 4.) Get information from the topic or topic section: topic, url, site, task, updates (date/time, staff member), csct #
-      // 5.) Filter out topic updates if:
-      //      - Staff posting is not part of weekend
+  function processEmailMessage(message, staffObj) {
+    // Pseudo Code
+    // -----------
+    // 1.) Get the plain text of the Message for further processing via Regular Expressions (RegExp)
+    // 2.) Get the headline for each topic, from section "Today's topic summary"
+    // 3.) Get each topic
+    // 4.) Get information from the topic or topic section: topic, url, site, task, updates (date/time, staff member), csct #
+    // 5.) Filter out topic updates if:
+    //      - Staff posting is not part of weekend
 
-      // Code
-      // ----
+    // Code
+    // ----
 
-      var arrCsctObjects = []; // Our return value
+    var arrCsctObjects = []; // Our return value
 
-      // 1.) Get the plain text of the Message for further processing via Regular Expressions (RegExp)
-      var bodyPlain = message.getPlainBody();
+    // 1.) Get the plain text of the Message for further processing via Regular Expressions (RegExp)
+    var bodyPlain = message.getPlainBody();
 
-      // DEBUG:
-      //Logger.log("Plain Text");
-      //Logger.log(bodyPlain);
+    // DEBUG:
+    //Logger.log("Plain Text");
+    //Logger.log(bodyPlain);
 
-      // 2.) Build CSCT object - Topic (String), Url (String), Jira (Boolean), CSCT# (if JIRA)
-      // 3.) Get each topic
-      //
-      // Also set up initial object
-      // {'topic':topic, 'ggUrl':url, 'jira':jira, 'csct':csct, 'site':site, 'task':task, 'staffMembers':[], 'updates':[], 'updCount':updCount}
-      // - If JIRA, we won't have task defined.
-      // - If non-JIRA, we won't have CSCT defined.
-      processTopicHeadline(bodyPlain, arrCsctObjects);
+    // 2.) Build CSCT object - Topic (String), Url (String), Jira (Boolean), CSCT# (if JIRA)
+    // 3.) Get each topic
+    //
+    // Also set up initial object
+    // {'topic':topic, 'ggUrl':url, 'jira':jira, 'csct':csct, 'site':site, 'task':task, 'staffMembers':[], 'updates':[], 'updCount':updCount}
+    // - If JIRA, we won't have task defined.
+    // - If non-JIRA, we won't have CSCT defined.
+    processTopicHeadline(bodyPlain, arrCsctObjects);
 
-      // DEBUG:
-      //Logger.log(arrCsctObjects);
+    // DEBUG:
+    //Logger.log(arrCsctObjects);
 
-      // 3.) Build CSCT object - Site (String), Task (Number), updates ({date/time, staff member}), csct (Number)
-      // 4.) Get information from the topic or topic section: topic, url, site, task, updates (date/time, staff member), csct #
-      // 5.) Filter out topic updates if:
-      //      - Staff posting is not part of weekend
-      //
-      // Passes back objects to be updated from Topic Sections
-      // - If JIRA or non-JIRA, get updates (staff, dotw, day, time), Weekend Day staff member
-      // - If JIRA, maybe get task
-      // - If non-JIRA, get CSCT
-      processAllTopicSections(bodyPlain, arrCsctObjects, staffObj);
+    // 3.) Build CSCT object - Site (String), Task (Number), updates ({date/time, staff member}), csct (Number)
+    // 4.) Get information from the topic or topic section: topic, url, site, task, updates (date/time, staff member), csct #
+    // 5.) Filter out topic updates if:
+    //      - Staff posting is not part of weekend
+    //
+    // Passes back objects to be updated from Topic Sections
+    // - If JIRA or non-JIRA, get updates (staff, dotw, day, time), Weekend Day staff member
+    // - If JIRA, maybe get task
+    // - If non-JIRA, get CSCT
+    processAllTopicSections(bodyPlain, arrCsctObjects, staffObj);
 
-      return arrCsctObjects;
-    }
+    return arrCsctObjects;
+  }
 
-    // ---------------------------------------------------------------------
+  // ---------------------------------------------------------------------
 
-    function processEmailMessageOLD(message, staffObj) {
-      /* TEMP STRUCTURE PLAN
+  function processEmailMessageOLD(message, staffObj) {
+    /* TEMP STRUCTURE PLAN
            -------------------
         txt.match(/\[[0-9]+ (Update|Updates)\]/)
 
@@ -616,269 +712,331 @@ const CsctMessages = (
            ]
         */
 
-      // Pseudo Code
-      // -----------
-      // 1.) Get the plain text of the Message for further processing via Regular Expressions (RegExp)
-      // 2.) Get the headline for each topic, from section "Today's topic summary"
-      // 3.) Get each topic
-      // 4.) Get information from the topic or topic section: topic, url, site, task, updates (date/time, staff member), csct #
-      // 5.) Filter out topic updates if:
-      //      - Staff posting is not part of weekend
+    // Pseudo Code
+    // -----------
+    // 1.) Get the plain text of the Message for further processing via Regular Expressions (RegExp)
+    // 2.) Get the headline for each topic, from section "Today's topic summary"
+    // 3.) Get each topic
+    // 4.) Get information from the topic or topic section: topic, url, site, task, updates (date/time, staff member), csct #
+    // 5.) Filter out topic updates if:
+    //      - Staff posting is not part of weekend
 
-      var bodyPlain = message.getPlainBody();
+    var bodyPlain = message.getPlainBody();
 
-      // DEBUG:
-      //Logger.log(bodyPlain);
+    // DEBUG:
+    //Logger.log(bodyPlain);
 
-      // Get Topic, Site, Google Group URL, # of Updates
-      var matches = [...bodyPlain.matchAll(/\s{2}-\s(\([A-Z]+\).+)\s+(http:\/\/.+)/g)]; // Pre-JIRA Headline link match
+    // Get Topic, Site, Google Group URL, # of Updates
+    var matches = [
+      ...bodyPlain.matchAll(/\s{2}-\s(\([A-Z]+\).+)\s+(http:\/\/.+)/g),
+    ]; // Pre-JIRA Headline link match
 
-      // /\s{2}-\s(\([A-Z]+\).+)\s+(http:\/\/.+)/.exec(bodyPlain)
+    // /\s{2}-\s(\([A-Z]+\).+)\s+(http:\/\/.+)/.exec(bodyPlain)
 
-      var ggTopics = [];
-      var ggTopic;
-      var ggUpdates = [];
+    var ggTopics = [];
+    var ggTopic;
+    var ggUpdates = [];
 
-      for (var i = 0; i &lt; matches.length; i++) {
-        // [0] = Overall match
-        // [1] = Topic
-        // [2] = URL
+    for (var i = 0; i &lt; matches.length; i++) {
+      // [0] = Overall match
+      // [1] = Topic
+      // [2] = URL
 
-        var topic = matches[i][1];
-        // Pre-Jira: Topic: (UPC) Upper Chesapeake Hlth Sys 6.1 | &lt;UPC> Setting down flags VM instability | Task# 82819261
-        // JIRA:     Topic: [JIRA] Updates for CSCT-31: &lt;PCH> - FS/CMs off the network
+      var topic = matches[i][1];
+      // Pre-Jira: Topic: (UPC) Upper Chesapeake Hlth Sys 6.1 | &lt;UPC> Setting down flags VM instability | Task# 82819261
+      // JIRA:     Topic: [JIRA] Updates for CSCT-31: &lt;PCH> - FS/CMs off the network
 
-        var url = matches[i][2];
-        // Pre-Jira = JIRA: Url: http://groups.google.com/a/meditech.com/group/clientservicescontinuanceteam/t/b0c51a94207b88fa
+      var url = matches[i][2];
+      // Pre-Jira = JIRA: Url: http://groups.google.com/a/meditech.com/group/clientservicescontinuanceteam/t/b0c51a94207b88fa
 
-        var site = topic.match(/\(([A-Z]+)\)/)[1]; // Pre-Jira
-        // JIRA: Within &lt;...>
+      var site = topic.match(/\(([A-Z]+)\)/)[1]; // Pre-Jira
+      // JIRA: Within &lt;...>
 
+      var task = topic.match(/Task\# ([0-9]+)/)[1]; // Pre-Jira
+      // JIRA: does not have task number.
 
-        var task = topic.match(/Task\# ([0-9]+)/)[1]; // Pre-Jira
-        // JIRA: does not have task number.
+      var updates = topic.match(/\[([0-9]+) (Update|Updates)\]/)[1]; // Pre-Jira &amp; Jira
 
-        var updates = topic.match(/\[([0-9]+) (Update|Updates)\]/)[1]; // Pre-Jira &amp; Jira
+      for (var u = 0; u &lt; updates; u++) ggUpdates.push(i); // Note how many updates per Google Group Topic
 
-        for (var u = 0; u &lt; updates; u++)
-          ggUpdates.push(i); // Note how many updates per Google Group Topic
+      var ggTopic = {
+        csct: "",
+        ggUrl: url,
+        staffMembers: [],
+        site: site,
+        task: task,
+        topic: topic,
+        updates: [],
+      };
+      ggTopics.push(ggTopic);
+    }
 
-        var ggTopic = {
-          csct: "",
-          ggUrl: url,
-          staffMembers: [],
-          site: site,
-          task: task,
-          topic: topic,
-          updates: []
-        };
-        ggTopics.push(ggTopic);
-      }
+    // Get Updates
+    matches = [
+      ...bodyPlain.matchAll(
+        /Last edited by ([A-Za-z\s]+) on ([A-Za-z]+), ([A-Za-z]+) (\d+) at ([\d\:A-Z]+)/g
+      ),
+    ]; // Pre-Jira
+    // Pre-JIRA Ex: Last edited by Andrew Leahy on Thursday, January 21 at 4:57PM
+    // From: CSCT Message System &lt;clientservicescontinuanceteam@meditech.com>
+    // Date: Jan 17 04:03PM -0500
 
-      // Get Updates
-      matches = [...bodyPlain.matchAll(/Last edited by ([A-Za-z\s]+) on ([A-Za-z]+), ([A-Za-z]+) (\d+) at ([\d\:A-Z]+)/g)]; // Pre-Jira
-      // Pre-JIRA Ex: Last edited by Andrew Leahy on Thursday, January 21 at 4:57PM
-      // From: CSCT Message System &lt;clientservicescontinuanceteam@meditech.com>
-      // Date: Jan 17 04:03PM -0500
+    // JIRA examples:
+    // From: Annie Gouin &lt;agouin@meditech.com>
+    // From: "Robert B. Smith (Jira)" &lt;jira-noreply@meditech.com>
+    // Date: Jan 25 06:18PM -0500
 
-      // JIRA examples:
-      // From: Annie Gouin &lt;agouin@meditech.com>
-      // From: "Robert B. Smith (Jira)" &lt;jira-noreply@meditech.com>
-      // Date: Jan 25 06:18PM -0500
+    var months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
 
-      var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    for (var i = 0; i &lt; matches.length; i++) {
+      // Match
+      // 0: Overall match (i.e. "Last Edited by ....")
+      // 1: staff (Ex: "Peter Art")
+      // 2: dotw (Ex: "Friday")
+      // 3: month (Ex: "September")
+      // 4: day (Ex: "25")
+      // 5: time (Ex: "4:00PM")
 
-      for (var i = 0; i &lt; matches.length; i++) {
+      var staff = matches[i][1];
+      var dotw = matches[i][2];
+      var month = months.indexOf(matches[i][3]) + 1;
+      var day = matches[i][4];
+      var time = matches[i][5];
 
-        // Match
-        // 0: Overall match (i.e. "Last Edited by ....")
-        // 1: staff (Ex: "Peter Art")
-        // 2: dotw (Ex: "Friday")
-        // 3: month (Ex: "September")
-        // 4: day (Ex: "25")
-        // 5: time (Ex: "4:00PM")
+      month = month &lt; 10 ? "0" + month : month;
 
-        var staff = matches[i][1];
-        var dotw = matches[i][2];
-        var month = months.indexOf(matches[i][3]) + 1;
-        var day = matches[i][4];
-        var time = matches[i][5];
+      var year = new Date().getFullYear();
+      var ggUpdateDate = month + "/" + day + "/" + year;
 
-        month = (month &lt; 10) ? ("0" + month) : month;
+      ggTopics[ggUpdates[i]].updates.push({
+        staff: staff,
+        day: dotw,
+        date: ggUpdateDate,
+        time: time,
+      });
 
-        var year = (new Date().getFullYear());
-        var ggUpdateDate = month + "/" + day + "/" + year;
+      if (
+        staffMemmberShouldBeIncluded(staffObj, staff) &amp;&amp;
+        !ggTopics[ggUpdates[i]].staffMembers.includes(staff)
+      )
+        ggTopics[ggUpdates[i]].staffMembers.push(staff);
+    }
 
-        ggTopics[ggUpdates[i]].updates.push({
-          staff: staff,
-          day: dotw,
-          date: ggUpdateDate,
-          time: time
-        });
+    // Get CSCT #
+    matches = [...bodyPlain.matchAll(/CSCT \#(\d+)/g)]; //Pre-JIRA
+    // Pre-Jira: CSCT #7672 - Upper Chesapeake Hlth Sys 6.1 &lt;UPC> REGION:NE
+    // JIRA: [JIRA] (CSCT-17) MEDITECH is Down - Switch Replacement causing Network Issues [2 Updates]
 
-        if (staffMemmberShouldBeIncluded(staffObj, staff) &amp;&amp; !ggTopics[ggUpdates[i]].staffMembers.includes(staff))
-          ggTopics[ggUpdates[i]].staffMembers.push(staff);
+    for (var i = 0; i &lt; matches.length; i++) {
+      // Match
+      // 0: Overall Match (Ex: CSCT 234)
+      // 1: CSCT # (Ex: 234)
 
-      }
+      if (ggTopics[ggUpdates[i]].csct == "")
+        ggTopics[ggUpdates[i]].csct = matches[i][1];
+    }
 
-      // Get CSCT #
-      matches = [...bodyPlain.matchAll(/CSCT \#(\d+)/g)]; //Pre-JIRA
-      // Pre-Jira: CSCT #7672 - Upper Chesapeake Hlth Sys 6.1 &lt;UPC> REGION:NE
-      // JIRA: [JIRA] (CSCT-17) MEDITECH is Down - Switch Replacement causing Network Issues [2 Updates]
+    //Logger.log(ggTopics);
 
-      for (var i = 0; i &lt; matches.length; i++) {
-        // Match
-        // 0: Overall Match (Ex: CSCT 234)
-        // 1: CSCT # (Ex: 234)
+    return ggTopics;
+  }
 
-        if (ggTopics[ggUpdates[i]].csct == "")
-          ggTopics[ggUpdates[i]].csct = matches[i][1];
-      }
+  // ---------------------------------------------------------------------
 
-      //Logger.log(ggTopics);
-
-      return ggTopics;
-    };
-
-    // ---------------------------------------------------------------------
-
-    /**
-     * Process Gmail inbox email messages for sheet data and populate sheet
-     * Run CsctMessages.main()
-     * @function main
-     * @memberof! CsctMessages
-     * @public
-     * @returns {undefined}
-     */
-    // eslint-disable-next-line no-unused-vars
-    function main() { // jshint ignore:line
-      /*
+  /**
+   * Process Gmail inbox email messages for sheet data and populate sheet
+   * Run CsctMessages.main()
+   * @function main
+   * @memberof CsctMessages
+   * @public
+   * @returns {undefined}
+   */
+  // eslint-disable-next-line no-unused-vars
+  function main() {
+    // jshint ignore:line
+    /*
         name = "Robert Homsey";
         staffObj[name] will be true
         name = "John Doe"
         staffObj[name] will be false
       */
-      const staffObj = StaffUtilities.getStaffNameObj(
-        PropertiesService.getScriptProperties()
-          .getProperty("mgrsStaffEmail")
-      );
+    const staffObj = StaffUtilities.getStaffNameObj(
+      PropertiesService.getScriptProperties().getProperty("mgrsStaffEmail")
+    );
 
-      // Dependency: Google Sheet ID for Supervisor/Tech Stats Template SANDBOX (Stored in Script Properties; Different for SANDBOX and LIVE)
-      //const spreadsheet = SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty("SupervisorTechStatsTemplateID"));
+    // Dependency: Google Sheet ID for Supervisor/Tech Stats Template SANDBOX (Stored in Script Properties; Different for SANDBOX and LIVE)
+    //const spreadsheet = SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty("SupervisorTechStatsTemplateID"));
 
-      // 1.) Build GmailApp Search Query to get Gmail Threads > Messages > Message Body content for scraping
-      // 2.) Parse Email Message Body content, filter out invalid or duplicate records
-      // 3.) Add to spreadsheet, filter out sheet existing record entries
+    // 1.) Build GmailApp Search Query to get Gmail Threads > Messages > Message Body content for scraping
+    // 2.) Parse Email Message Body content, filter out invalid or duplicate records
+    // 3.) Add to spreadsheet, filter out sheet existing record entries
 
-      var strSender, strSubject, strAfterDate, strSearchQuery, strBeforeDate;
-      strSender = PropertiesService.getScriptProperties()
-        .getProperty("csctGroupEmail");
-      strAfterDate = getPreviousFridayDate();
+    var strSender, strSubject, strAfterDate, strSearchQuery, strBeforeDate;
+    strSender = PropertiesService.getScriptProperties().getProperty(
+      "csctGroupEmail"
+    );
+    strAfterDate = getPreviousFridayDate();
 
-      strBeforeDate = new Date(getPreviousFridayDate())
-      strBeforeDate.setDate(strBeforeDate.getDate() + 4)
-      strBeforeDate = strBeforeDate.getFullYear() + "/" + (strBeforeDate.getMonth() + 1) + "/" + strBeforeDate.getDate();
+    strBeforeDate = new Date(getPreviousFridayDate());
+    strBeforeDate.setDate(strBeforeDate.getDate() + 4);
+    strBeforeDate =
+      strBeforeDate.getFullYear() +
+      "/" +
+      (strBeforeDate.getMonth() + 1) +
+      "/" +
+      strBeforeDate.getDate();
 
-      // strSearchQuery = "from:(" + strSender + ") after:" + strAfterDate + " before:" + strBeforeDate;
-      strSearchQuery = "from:(" + strSender + ") after:" + strAfterDate + " before:" + strBeforeDate;
-      // EX: from:(clientservicescontinuanceteam@meditech.com) after:2021/2/5
+    // strSearchQuery = "from:(" + strSender + ") after:" + strAfterDate + " before:" + strBeforeDate;
+    strSearchQuery =
+      "from:(" +
+      strSender +
+      ") after:" +
+      strAfterDate +
+      " before:" +
+      strBeforeDate;
+    // EX: from:(clientservicescontinuanceteam@meditech.com) after:2021/2/5
 
-      // DEBUG:
-      //strSearchQuery = "from:(clientservicescontinuanceteam@meditech.com) after:2021/01/01"
-      //Logger.log("Query: " + strSearchQuery);
+    // DEBUG:
+    //strSearchQuery = "from:(clientservicescontinuanceteam@meditech.com) after:2021/01/01"
+    //Logger.log("Query: " + strSearchQuery);
 
+    var threads = GmailApp.search(strSearchQuery, 0, 30); // Multiple filters to prevent false documentation - author check, day check
 
-      var threads = GmailApp.search(strSearchQuery, 0, 30); // Multiple filters to prevent false documentation - author check, day check
+    // DEBUG:
+    //var threads = GmailApp.search(strSearchQuery, 0, 1); // search(query, start, max) // returns GmailThread[] - do a max of 2 in case it's Friday and two email threads are available.
+    //var threads = GmailApp.search(strSearchQuery, 0, 20); // search(query, start, max)
+    //var threads = GmailApp.search(strSearchQuery, 0, 500); // MAX max value - search(query, start, max)
 
-      // DEBUG:
-      //var threads = GmailApp.search(strSearchQuery, 0, 1); // search(query, start, max) // returns GmailThread[] - do a max of 2 in case it's Friday and two email threads are available.
-      //var threads = GmailApp.search(strSearchQuery, 0, 20); // search(query, start, max)
-      //var threads = GmailApp.search(strSearchQuery, 0, 500); // MAX max value - search(query, start, max)
+    var ggTopics = [];
 
-      var ggTopics = [];
+    for (var thread = 0; thread &lt; threads.length; thread++) {
+      var messages = threads[thread].getMessages(); // returns GmailMessage[]
+      var message = messages[0];
 
-      for (var thread = 0; thread &lt; threads.length; thread++) {
-        var messages = threads[thread].getMessages(); // returns GmailMessage[]
-        var message = messages[0];
+      var tempGgTopics = processEmailMessage(message, staffObj);
 
-        var tempGgTopics = processEmailMessage(message, staffObj);
-
-        if (tempGgTopics.length > 0)
-          for (var t = 0; t &lt; tempGgTopics.length; t++)
-            ggTopics.push(tempGgTopics[t]);
-      }
-
-      // Combine posts found for same CSTS but from another day (between the Friday-Monday search upon) -- removes duplicates
-      // Control: Loop forward (1,2,3...)
-      // Test: Another loop backward (5,4,3...)
-      for (var x = 0; x &lt; ggTopics.length; x++) {
-        var xCsct = ggTopics[x].csct;
-
-        for (var y = ggTopics.length - 1; y > x; y--) {
-          var yCsct = ggTopics[y].csct;
-
-          if (xCsct == yCsct) {
-            for (var z = 0; z &lt; ggTopics[y].updates.length; z++)
-              ggTopics[x].updates.push(ggTopics[y].updates[z]);
-
-            for (var z = 0; z &lt; ggTopics[y].staffMembers.length; z++) {
-              if (staffMemmberShouldBeIncluded(staffObj, ggTopics[y].staffMembers[z]) &amp;&amp; !ggTopics[x].staffMembers.includes(ggTopics[y].staffMembers[z]))
-                !ggTopics[x].staffMembers.push(ggTopics[y].staffMembers[z]);
-            }
-
-            ggTopics.splice(y, 1);
-          }
-        }
-      }
-
-      // Filter existing entries
-      // -----------------------
-      // Dependency: Google Sheet ID for Supervisor/Tech Stats Template SANDBOX (Stored in Script Properties; Different for SANDBOX and LIVE)
-      var year, spreadsheet, sheet;
-      year = (new Date().getFullYear());
-      spreadsheet = SpreadsheetApp.open(SupTechUtils.getSupervisorTechSpreadsheetByYear(year));
-
-      // DEBUG:
-      //const spreadsheet = SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty("SupervisorTechStatsTemplateID"));
-
-      sheet = spreadsheet.getSheetByName("CSCT Messages");
-      ggTopics = checkSheetForExistingRecordsAndFilterArray(sheet, ggTopics); // Filter existing
-
-      // Add to spreadsheet
-      // ------------------
-      // Will not add any CSCT record where none of the staff members are from the Weekend Day shift
-      addCsctMessagesToSpreadsheet(sheet, ggTopics);
-
-
-      // Sort Spreadsheet Range
-      // ----------------------
-      // First by CSCT Update Date (A-Z)
-      // Second by CSCT # (Z-A)
-      var colLetters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
-      var colLast = sheet.getLastColumn(); // Returns Int
-      var rowLast = sheet.getLastRow(); // Returns Int
-      var rangeNotation = "A3:" + colLetters[colLast] + rowLast;
-
-      sheet.getRange(rangeNotation)
-        .sort([
-          {
-            column: 5,
-            ascending: true
-          }, // Sort by CSCT Update Date
-          {
-            column: 2,
-            ascending: false
-          } // Sort by CSCT #
-        ]);
-
-      return undefined;
+      if (tempGgTopics.length > 0)
+        for (var t = 0; t &lt; tempGgTopics.length; t++)
+          ggTopics.push(tempGgTopics[t]);
     }
 
-    return Object.freeze({
-      main
-    });
-  }(GmailApp, PropertiesService, SpreadsheetApp)
-);</code></pre>
+    // Combine posts found for same CSTS but from another day (between the Friday-Monday search upon) -- removes duplicates
+    // Control: Loop forward (1,2,3...)
+    // Test: Another loop backward (5,4,3...)
+    for (var x = 0; x &lt; ggTopics.length; x++) {
+      var xCsct = ggTopics[x].csct;
+
+      for (var y = ggTopics.length - 1; y > x; y--) {
+        var yCsct = ggTopics[y].csct;
+
+        if (xCsct == yCsct) {
+          for (var z = 0; z &lt; ggTopics[y].updates.length; z++)
+            ggTopics[x].updates.push(ggTopics[y].updates[z]);
+
+          for (var z = 0; z &lt; ggTopics[y].staffMembers.length; z++) {
+            if (
+              staffMemmberShouldBeIncluded(
+                staffObj,
+                ggTopics[y].staffMembers[z]
+              ) &amp;&amp;
+              !ggTopics[x].staffMembers.includes(ggTopics[y].staffMembers[z])
+            )
+              !ggTopics[x].staffMembers.push(ggTopics[y].staffMembers[z]);
+          }
+
+          ggTopics.splice(y, 1);
+        }
+      }
+    }
+
+    // Filter existing entries
+    // -----------------------
+    // Dependency: Google Sheet ID for Supervisor/Tech Stats Template SANDBOX (Stored in Script Properties; Different for SANDBOX and LIVE)
+    var year, spreadsheet, sheet;
+    year = new Date().getFullYear();
+    spreadsheet = SpreadsheetApp.open(
+      SupTechUtils.getSupervisorTechSpreadsheetByYear(year)
+    );
+
+    // DEBUG:
+    //const spreadsheet = SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty("SupervisorTechStatsTemplateID"));
+
+    sheet = spreadsheet.getSheetByName("CSCT Messages");
+    ggTopics = checkSheetForExistingRecordsAndFilterArray(sheet, ggTopics); // Filter existing
+
+    // Add to spreadsheet
+    // ------------------
+    // Will not add any CSCT record where none of the staff members are from the Weekend Day shift
+    addCsctMessagesToSpreadsheet(sheet, ggTopics);
+
+    // Sort Spreadsheet Range
+    // ----------------------
+    // First by CSCT Update Date (A-Z)
+    // Second by CSCT # (Z-A)
+    var colLetters = [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H",
+      "I",
+      "J",
+      "K",
+      "L",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R",
+      "S",
+      "T",
+      "U",
+      "V",
+      "W",
+      "X",
+      "Y",
+      "Z",
+    ];
+    var colLast = sheet.getLastColumn(); // Returns Int
+    var rowLast = sheet.getLastRow(); // Returns Int
+    var rangeNotation = "A3:" + colLetters[colLast] + rowLast;
+
+    sheet.getRange(rangeNotation).sort([
+      {
+        column: 5,
+        ascending: true,
+      }, // Sort by CSCT Update Date
+      {
+        column: 2,
+        ascending: false,
+      }, // Sort by CSCT #
+    ]);
+
+    return undefined;
+  }
+
+  return Object.freeze({
+    main,
+  });
+})(GmailApp, PropertiesService, SpreadsheetApp);
+</code></pre>
         </article>
     </section>
 
@@ -894,7 +1052,7 @@ const CsctMessages = (
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Fri Feb 26 2021 09:13:36 GMT-0500 (Eastern Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Fri Feb 26 2021 10:51:50 GMT-0500 (Eastern Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
