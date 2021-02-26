@@ -28,8 +28,7 @@
         <article>
             <pre class="prettyprint source linenums"><code>/*jslint browser:true, long:true, white:true*/
 /*global
-DriveApp, FIRST_STAFF_ROW, PropertiesService, SitesApp, SpreadsheetApp,
-YearlyStats
+CodeMoveCounts, FIRST_STAFF_ROW, SpreadsheetApp, YearlyStats
 */
 
 /**
@@ -43,61 +42,8 @@ YearlyStats
  */
 
 // eslint-disable-next-line no-unused-vars
-const MonthlyRun = (function (
-  DriveApp,
-  PropertiesService,
-  SitesApp,
-  SpreadsheetApp
-) {
+const MonthlyRun = (function (SpreadsheetApp) {
   "use strict";
-
-  /**
-   * Creates and returns a new monthly code moves file object.  Also adds the code
-   * moves file's url to the associated Google Site.
-   * @param {Object} codeMoveTemplate
-   * @param {string} codeMoveSheetName
-   * @param {Object} yearFolder
-   * @param {Object} dateObj
-   * @returns {Object}
-   */
-  function addCodeMoveFile(
-    codeMoveTemplate,
-    codeMoveSheetName,
-    yearFolder,
-    dateObj
-  ) {
-    const codeMoveFile = codeMoveTemplate.makeCopy(
-      codeMoveSheetName,
-      yearFolder
-    );
-    const site = SitesApp.getSiteByUrl(
-      PropertiesService.getScriptProperties().getProperty("googleSiteUrl")
-    );
-    const codeMovePage = site.getChildByName("code-move-counts");
-    const year = dateObj.getFullYear();
-    const month = dateObj
-      .toLocaleDateString("en-US", {
-        month: "numeric",
-      })
-      .padStart(2, "0");
-    const urlLink = codeMoveFile.getUrl();
-    const urlName = year + "-" + month;
-    const urlStr = '&lt;a href="' + urlLink + '">' + urlName + "&lt;/a>";
-    const values = [urlStr];
-    // remove any existing links for the current month
-    codeMovePage
-      .getListItems()
-      .filter(
-        (row) =>
-          row.getValueByName("Spreadsheet Links").match(/>([^&lt;]+)/)[1] ===
-          urlName
-      )
-      .forEach((link) => link.deleteListItem());
-    // add current month to list
-    codeMovePage.addListItem(values);
-
-    return codeMoveFile;
-  }
 
   /**
    * Returns a the file ID for the monthly data file object, for the current
@@ -111,26 +57,14 @@ const MonthlyRun = (function (
    * @returns {Object} monthly data spreadsheet file object
    */
   function getCodeMoveFile(yearFolder, yearMonthStr, dateObj) {
-    // get code move template
-    const codeMoveTemplate = DriveApp.getFileById(
-      PropertiesService.getScriptProperties().getProperty("codeMoveTemplateId")
-    );
     // get or create YYYY-MM spreadsheet
-    const codeMoveSheetName = yearMonthStr;
-    const fileIterator = yearFolder.getFilesByName(codeMoveSheetName);
-    const yearMonthFileFound = fileIterator.hasNext();
-    const codeMoveFile = yearMonthFileFound
-      ? fileIterator.next()
-      : addCodeMoveFile(
-          codeMoveTemplate,
-          codeMoveSheetName,
-          yearFolder,
-          dateObj
-        );
+    const [codeMoveFile, newCodeMoveFile] = CodeMoveCounts.getDataFile(
+      yearFolder, yearMonthStr, dateObj);
+
     let spreadsheet = {};
 
     // edit new month spreadsheets
-    if (yearMonthFileFound === false) {
+    if (newCodeMoveFile === true) {
       spreadsheet = SpreadsheetApp.openById(codeMoveFile.getId());
       spreadsheet.getSheetByName("Totals").getRange("A1:A3").setValue(dateObj);
 
@@ -151,14 +85,14 @@ const MonthlyRun = (function (
             .getSheetByName("Totals")
             .getRange("A" + row)
             .setValue(
-              '=HYPERLINK("' +
-                "https://docs.google.com/spreadsheets/d/" +
-                spreadsheet.getId() +
-                "/edit#gid=" +
-                spreadsheet.getSheetByName(name).getSheetId() +
-                '", "' +
-                name +
-                '")'
+              "=HYPERLINK(\""
+              + "https://docs.google.com/spreadsheets/d/"
+              + spreadsheet.getId()
+              + "/edit#gid="
+              + spreadsheet.getSheetByName(name).getSheetId()
+              + "\", \""
+              + name
+              + "\")"
             );
 
           // set protections
@@ -199,17 +133,16 @@ const MonthlyRun = (function (
     let yearlyStatsFile = {};
     let yearlySupTechFile = {};
 
-    const dateObj =
-      testYear !== undefined &amp;&amp; testMonth !== undefined
-        ? new Date(testYear, testMonth)
-        : new Date();
+    const dateObj = testYear !== undefined &amp;&amp; testMonth !== undefined
+      ? new Date(testYear, testMonth)
+      : new Date();
     const yearStr = dateObj.getFullYear().toString();
     const month = dateObj.getMonth();
     const monthStr = String(month + 1)
       .toString()
       .padStart(2, "0");
-    const yearMonthStr =
-      "Weekend Code Move Count" + " " + yearStr + "-" + monthStr;
+    const yearMonthStr = "Weekend Code Move Count" + " "
+      + yearStr + "-" + monthStr;
 
     /* jshint ignore:start */
     // See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#Array_destructuring
@@ -235,12 +168,11 @@ const MonthlyRun = (function (
   }
 
   return Object.freeze({
-    main,
+    main
   });
-})(DriveApp, PropertiesService, SitesApp, SpreadsheetApp);
+})(SpreadsheetApp);
 
-/******************************************************************************/
-</code></pre>
+/******************************************************************************/</code></pre>
         </article>
     </section>
 
@@ -256,7 +188,7 @@ const MonthlyRun = (function (
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Fri Feb 26 2021 18:21:16 GMT-0500 (Eastern Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sun Feb 28 2021 09:29:32 GMT-0500 (Eastern Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

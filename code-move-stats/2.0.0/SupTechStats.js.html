@@ -26,7 +26,8 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/*global DriveApp, PropertiesService, SitesApp, SpreadsheetApp
+            <pre class="prettyprint source linenums"><code>/*global 
+DriveApp, PropertiesService, SitesApp, SpreadsheetApp, YearlyStats
  */
 
 /**
@@ -60,16 +61,16 @@ const SupTechStats = (function (
    */
   function pathwaysGetDataFormula(deliveriesSs, yearStr, nextYearStr) {
     return (
-      `=QUERY(IMPORTRANGE("` +
-      `${deliveriesSs.getUrl()}","Sheet1!A10:G"),` +
-      `"Select Col1, Col2, Col3, Col5, Col6 Where` +
-      ` (Col5 >= date '${yearStr}-01-01' AND Col5 &lt; date` +
-      ` '${nextYearStr}-01-01') OR` +
-      ` (Col6 >= date '${yearStr}-01-01' AND Col6 &lt; date` +
-      ` '${nextYearStr}-01-01') AND` +
-      ` (dayOfWeek(Col5)=1 OR dayOfWeek(Col5)>=2 OR dayOfWeek(Col5)=6 OR` +
-      ` dayOfWeek(Col5)>=7 OR dayOfWeek(Col6)=1 OR dayOfWeek(Col6)>=2 OR` +
-      ` dayOfWeek(Col6)=6 OR dayOfWeek(Col6)>=7)")`
+      `=QUERY(IMPORTRANGE("`
+      + `${deliveriesSs.getUrl()}","Sheet1!A10:G"),`
+      + `"Select Col1, Col2, Col3, Col5, Col6 Where`
+      + ` (Col5 >= date '${yearStr}-01-01' AND Col5 &lt; date`
+      + ` '${nextYearStr}-01-01') OR`
+      + ` (Col6 >= date '${yearStr}-01-01' AND Col6 &lt; date`
+      + ` '${nextYearStr}-01-01') AND`
+      + ` (dayOfWeek(Col5)=1 OR dayOfWeek(Col5)>=2 OR dayOfWeek(Col5)=6 OR`
+      + ` dayOfWeek(Col5)>=7 OR dayOfWeek(Col6)=1 OR dayOfWeek(Col6)>=2 OR`
+      + ` dayOfWeek(Col6)=6 OR dayOfWeek(Col6)>=7)")`
     );
   }
 
@@ -87,17 +88,17 @@ const SupTechStats = (function (
    */
   function pathwaysDisplayDataFormula(tabArr, yearNum, monthNum, endOfMonth) {
     return (
-      `=IFERROR(ADD(COUNTIF(QUERY('${tabArr[0]}'!A3:F,` +
-      `"Select A WHERE year(D)=${yearNum}` +
-      ` AND (D >= date '${yearNum}-${monthNum}-1'` +
-      ` AND D &lt;= date '${yearNum}-${monthNum}-${endOfMonth}')` +
-      ` AND (dayOfWeek(D)=1 OR dayOfWeek(D)=2 OR dayOfWeek(D)=6` +
-      ` OR dayOfWeek(D)=7)"),"> ''"),COUNTIF(QUERY('${tabArr[0]}'!A3:F,` +
-      `"Select A WHERE year(E)=${yearNum}` +
-      ` AND (E >= date '${yearNum}-${monthNum}-1'` +
-      ` AND E &lt;= date '${yearNum}-${monthNum}-${endOfMonth}')` +
-      ` AND (dayOfWeek(E)=1 OR dayOfWeek(E)=2 OR dayOfWeek(E)=6` +
-      ` OR dayOfWeek(E)=7)"),">''")),0)`
+      `=IFERROR(ADD(COUNTIF(QUERY('${tabArr[0]}'!A3:F,`
+      + `"Select A WHERE year(D)=${yearNum}`
+      + ` AND (D >= date '${yearNum}-${monthNum}-1'`
+      + ` AND D &lt;= date '${yearNum}-${monthNum}-${endOfMonth}')`
+      + ` AND (dayOfWeek(D)=1 OR dayOfWeek(D)=2 OR dayOfWeek(D)=6`
+      + ` OR dayOfWeek(D)=7)"),"> ''"),COUNTIF(QUERY('${tabArr[0]}'!A3:F,`
+      + `"Select A WHERE year(E)=${yearNum}`
+      + ` AND (E >= date '${yearNum}-${monthNum}-1'`
+      + ` AND E &lt;= date '${yearNum}-${monthNum}-${endOfMonth}')`
+      + ` AND (dayOfWeek(E)=1 OR dayOfWeek(E)=2 OR dayOfWeek(E)=6`
+      + ` OR dayOfWeek(E)=7)"),">''")),0)`
     );
   }
 
@@ -115,9 +116,9 @@ const SupTechStats = (function (
    */
   function genericDisplayDataFormula(sheetName, yearNum, monthNum, endOfMonth) {
     return (
-      `=COUNTIFS('${sheetName}'!$A:$A,` +
-      ` ">="&amp;Date(${yearNum},${monthNum},1),'${sheetName}'!$A:$A,` +
-      ` "&lt;"&amp;Date(${yearNum},${monthNum},${endOfMonth}))`
+      `=COUNTIFS('${sheetName}'!$A:$A,`
+      + ` ">="&amp;Date(${yearNum},${monthNum},1),'${sheetName}'!$A:$A,`
+      + ` "&lt;"&amp;Date(${yearNum},${monthNum},${endOfMonth}))`
     );
   }
 
@@ -173,10 +174,10 @@ const SupTechStats = (function (
       indexSheet
         .getRange(`${colLetter}3`)
         .setFormula(
-          `=COUNTUNIQUE(IFERROR(` +
-            `FILTER('${tabArr[1]}'!$B:$B,'${tabArr[1]}'!$E:$E` +
-            ` >= Date(${yearNum},${monthNum},1),'CSCT Messages'!$E:$E` +
-            ` &lt;= Date(${yearNum},${monthNum},${endOfMonth})),""))`
+          `=COUNTUNIQUE(IFERROR(`
+          + `FILTER('${tabArr[1]}'!$B:$B,'${tabArr[1]}'!$E:$E`
+          + ` >= Date(${yearNum},${monthNum},1),'CSCT Messages'!$E:$E`
+          + ` &lt;= Date(${yearNum},${monthNum},${endOfMonth})),""))`
         );
       // Data Recoveries
       indexSheet
@@ -200,9 +201,9 @@ const SupTechStats = (function (
       indexSheet
         .getRange(`${colLetter}7`)
         .setFormula(
-          `=SUMIFS('${tabArr[5]}'!E:E,'${tabArr[5]}'!A:A,` +
-            ` ">="&amp;Date(${yearNum},${monthNum},1),'${tabArr[5]}'!A:A,` +
-            ` "&lt;"&amp;Date(${yearNum},${monthNum},${endOfMonth}))`
+          `=SUMIFS('${tabArr[5]}'!E:E,'${tabArr[5]}'!A:A,`
+          + ` ">="&amp;Date(${yearNum},${monthNum},1),'${tabArr[5]}'!A:A,`
+          + ` "&lt;"&amp;Date(${yearNum},${monthNum},${endOfMonth}))`
         );
       // Infrastructure Projects
       indexSheet
@@ -256,36 +257,36 @@ const SupTechStats = (function (
       indexSheet
         .getRange(`${colLetter}16`)
         .setFormula(
-          `=COUNTIFS('${tabArr[14]}'!$D:$D,` +
-            ` ">="&amp;Date(${yearNum},${monthNum},1),'${tabArr[14]}'!$D:$D,` +
-            ` "&lt;"&amp;Date(${yearNum},${monthNum},${endOfMonth}),` +
-            `'${tabArr[14]}'!$G:$G,"Magic",'${tabArr[14]}'!$K:$K,"Yes")`
+          `=COUNTIFS('${tabArr[14]}'!$D:$D,`
+          + ` ">="&amp;Date(${yearNum},${monthNum},1),'${tabArr[14]}'!$D:$D,`
+          + ` "&lt;"&amp;Date(${yearNum},${monthNum},${endOfMonth}),`
+          + `'${tabArr[14]}'!$G:$G,"Magic",'${tabArr[14]}'!$K:$K,"Yes")`
         );
       // Updates Supported (CS)
       indexSheet
         .getRange(`${colLetter}17`)
         .setFormula(
-          `=COUNTIFS('${tabArr[15]}'!$D:$D,` +
-            ` ">="&amp;Date(${yearNum},${monthNum},1),'${tabArr[15]}'!$D:$D,` +
-            ` "&lt;"&amp;Date(${yearNum},${monthNum},${endOfMonth}),` +
-            `'${tabArr[15]}'!$G:$G,"CS",'${tabArr[15]}'!$K:$K,"Yes")`
+          `=COUNTIFS('${tabArr[15]}'!$D:$D,`
+          + ` ">="&amp;Date(${yearNum},${monthNum},1),'${tabArr[15]}'!$D:$D,`
+          + ` "&lt;"&amp;Date(${yearNum},${monthNum},${endOfMonth}),`
+          + `'${tabArr[15]}'!$G:$G,"CS",'${tabArr[15]}'!$K:$K,"Yes")`
         );
       // Updates Supported (Exp)
       indexSheet
         .getRange(`${colLetter}18`)
         .setFormula(
-          `=COUNTIFS('${tabArr[16]}'!$D:$D,` +
-            ` ">="&amp;Date(${yearNum},${monthNum},1),'${tabArr[16]}'!$D:$D,` +
-            ` "&lt;"&amp;Date(${yearNum},${monthNum},${endOfMonth}),` +
-            `'${tabArr[16]}'!$G:$G,"6.08",'${tabArr[16]}'!$K:$K,"Yes")` +
-            `+COUNTIFS('${tabArr[16]}'!$D:$D,` +
-            ` ">="&amp;Date(${yearNum},${monthNum},1),'${tabArr[16]}'!$D:$D,` +
-            ` "&lt;"&amp;Date(${yearNum},${monthNum},${endOfMonth}),` +
-            `'${tabArr[16]}'!$G:$G,"6.15",'${tabArr[16]}'!$K:$K,"Yes")` +
-            `+COUNTIFS('${tabArr[16]}'!$D:$D,` +
-            ` ">="&amp;Date(${yearNum},${monthNum},1),'${tabArr[16]}'!$D:$D,` +
-            ` "&lt;"&amp;Date(${yearNum},${monthNum},${endOfMonth}),` +
-            `'${tabArr[16]}'!$G:$G,"Expanse",'${tabArr[16]}'!$K:$K,"Yes")`
+          `=COUNTIFS('${tabArr[16]}'!$D:$D,`
+          + ` ">="&amp;Date(${yearNum},${monthNum},1),'${tabArr[16]}'!$D:$D,`
+          + ` "&lt;"&amp;Date(${yearNum},${monthNum},${endOfMonth}),`
+          + `'${tabArr[16]}'!$G:$G,"6.08",'${tabArr[16]}'!$K:$K,"Yes")`
+          + `+COUNTIFS('${tabArr[16]}'!$D:$D,`
+          + ` ">="&amp;Date(${yearNum},${monthNum},1),'${tabArr[16]}'!$D:$D,`
+          + ` "&lt;"&amp;Date(${yearNum},${monthNum},${endOfMonth}),`
+          + `'${tabArr[16]}'!$G:$G,"6.15",'${tabArr[16]}'!$K:$K,"Yes")`
+          + `+COUNTIFS('${tabArr[16]}'!$D:$D,`
+          + ` ">="&amp;Date(${yearNum},${monthNum},1),'${tabArr[16]}'!$D:$D,`
+          + ` "&lt;"&amp;Date(${yearNum},${monthNum},${endOfMonth}),`
+          + `'${tabArr[16]}'!$G:$G,"Expanse",'${tabArr[16]}'!$K:$K,"Yes")`
         );
       // UWI Code Moves
       indexSheet
@@ -320,14 +321,14 @@ const SupTechStats = (function (
     const supTechLogsListPage = site.getChildByName("supervisor-tech-logs");
     const urlLink = yearlySupTechFile.getUrl();
     const urlName = "Weekend Supervisor/Tech Stats " + yearStr;
-    const values = ['&lt;a href="' + urlLink + '">' + urlName + "&lt;/a>"];
+    const values = ["&lt;a href=\"" + urlLink + "\">" + urlName + "&lt;/a>"];
     // remove any existing links for the current year
     supTechLogsListPage
       .getListItems()
       .filter(
         (row) =>
-          row.getValueByName("Spreadsheet Links").match(/>([^&lt;]+)/)[1] ===
-          urlName
+        row.getValueByName("Spreadsheet Links").match(/>([^&lt;]+)/)[1]
+        === urlName
       )
       .forEach((link) => link.deleteListItem());
     // add current year to list
@@ -339,14 +340,20 @@ const SupTechStats = (function (
   }
 
   /**
-   * Gets a SupTechStats spreadsheet for the given year
+   * Gets a SupTechStats spreadsheet File object for the given year.
+   * An undefined value for the yearFolder is allowed.
    * @function getSpreadsheet
    * @memberof SupTechStats
-   * @param {Object} yearFolder - instance of class [Folder]{@link https://developers.google.com/apps-script/reference/drive/folder}
+   * @param {Object} [yearFolder] - instance of class [Folder]{@link https://developers.google.com/apps-script/reference/drive/folder}
    * @param {string} yearStr
-   * @returns {object} - instance of class [File]{@link https://developers.google.com/apps-script/reference/drive/file}
+   * @returns {Object[]} - instances of class [File]{@link https://developers.google.com/apps-script/reference/drive/file}
    */
-  function getSpreadsheet(yearFolder, yearStr) {
+  function getDataFile(yearFolder, yearStr) {
+    //
+    if (yearFolder === undefined) {
+      yearFolder = YearlyStats.getYearFolder(yearStr);
+    }
+
     // get Yearly Supervisor/Tech Stats template ID
     const yearlySupTechTemplate = SpreadsheetApp.openById(
       PropertiesService.getScriptProperties().getProperty(
@@ -356,17 +363,19 @@ const SupTechStats = (function (
     const fileIterator = yearFolder.getFilesByName(
       "Weekend Supervisor/Tech Stats " + yearStr
     );
-    return fileIterator.hasNext() === true
+    const newSupTechStatsFile = !(fileIterator.hasNext());
+    const supTechStatsFile = newSupTechStatsFile === false
       ? fileIterator.next()
       : addYearlySupTechFile(yearlySupTechTemplate, yearStr, yearFolder);
+
+    return [supTechStatsFile, newSupTechStatsFile];
   }
 
   return Object.freeze({
-    getSpreadsheet,
-    yearlyInit,
+    getDataFile,
+    yearlyInit
   });
-})(DriveApp, PropertiesService, SitesApp, SpreadsheetApp);
-</code></pre>
+})(DriveApp, PropertiesService, SitesApp, SpreadsheetApp);</code></pre>
         </article>
     </section>
 
@@ -382,7 +391,7 @@ const SupTechStats = (function (
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Fri Feb 26 2021 18:21:16 GMT-0500 (Eastern Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sun Feb 28 2021 09:29:32 GMT-0500 (Eastern Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

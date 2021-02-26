@@ -81,14 +81,14 @@ const YearlyStats = (function (
     const ohsStatsListPage = site.getChildByName("ohs-stats");
     const urlLink = yearlyStatsFile.getUrl();
     const urlName = yearStr + " OHS Stats";
-    const values = ['&lt;a href="' + urlLink + '">' + urlName + "&lt;/a>"];
+    const values = ["&lt;a href=\"" + urlLink + "\">" + urlName + "&lt;/a>"];
     // remove any existing links for the current year
     ohsStatsListPage
       .getListItems()
       .filter(
         (row) =>
-          row.getValueByName("Spreadsheet Links").match(/>([^&lt;]+)/)[1] ===
-          urlName
+        row.getValueByName("Spreadsheet Links").match(/>([^&lt;]+)/)[1]
+        === urlName
       )
       .forEach((link) => link.deleteListItem());
     // add current year to list
@@ -111,8 +111,8 @@ const YearlyStats = (function (
   function getTechFormula(yearStr, month, rowNum, colLetter) {
     const year = Number(yearStr);
     return (
-      `=IF(TODAY()>=Date(${year},${month},1),` +
-      `IFERROR('Imported Data'!${colLetter}${rowNum},0),"")`
+      `=IF(TODAY()>=Date(${year},${month},1),`
+      + `IFERROR('Imported Data'!${colLetter}${rowNum},0),"")`
     );
   }
 
@@ -211,6 +211,25 @@ const YearlyStats = (function (
   }
 
   /**
+   * Finds or creates then returns a Folder class instance for the current
+   * year's data.
+   * @function getYearFolder
+   * @memberof YearlyStats
+   * @param {string} yearStr 
+   * @returns {Object} - instance of class Folder
+   */
+  function getYearFolder(yearStr) {
+    // find root folder
+    const dataFolder = DriveApp.getFolderById(
+      PropertiesService.getScriptProperties().getProperty("dataFolderId")
+    );
+    const folderIterator = dataFolder.getFoldersByName(yearStr);
+    return folderIterator.hasNext() === true
+      ? folderIterator.next()
+      : dataFolder.createFolder(yearStr);
+  }
+
+  /**
    * Returns a reference to the folder object, for the current year, and its
    * yearly OHS and Sup/Tech stats spreadsheets.  If the folder does not
    * already exist, a new one will be created and populated with a yearly OHS
@@ -227,29 +246,31 @@ const YearlyStats = (function (
         "yearlyStatsTemplateId"
       )
     );
-    // find root folder
-    const dataFolder = DriveApp.getFolderById(
-      PropertiesService.getScriptProperties().getProperty("dataFolderId")
-    );
-    const folderIterator = dataFolder.getFoldersByName(yearStr);
-    const yearFolder =
-      folderIterator.hasNext() === true
-        ? folderIterator.next()
-        : dataFolder.createFolder(yearStr);
+    // get data folder for current year
+    const yearFolder = getYearFolder(yearStr);
     // get yearly OHS Stats file
     let fileIterator = yearFolder.getFilesByName(
       "Weekend Days OHS Stat tracking information " + yearStr
     );
-    const yearlyStatsFile =
-      fileIterator.hasNext() === true
-        ? fileIterator.next()
-        : addYearlyStatsFile(yearlyStatsTemplate, yearStr, yearFolder);
+    const yearlyStatsFile = fileIterator.hasNext() === true
+      ? fileIterator.next()
+      : addYearlyStatsFile(yearlyStatsTemplate, yearStr, yearFolder);
     // get yearly Supervisor/Tech Logs file
-    const yearlySupTechFile = SupTechStats.getSpreadsheet(yearFolder, yearStr);
+    let supTechStatsFile = {};
+    let newSupTechStatsFile = {};
     const yearlyStatsSs = SpreadsheetApp.openById(yearlyStatsFile.getId());
-    // add formulas linking Weekend Days sheet sup/tech #'s to Imported Data
-    addSupTechFormulas(yearlyStatsSs, yearStr);
-    return [yearFolder, yearlyStatsFile, yearlySupTechFile];
+
+    [
+      supTechStatsFile,
+      newSupTechStatsFile
+    ] = SupTechStats.getDataFile(yearFolder, yearStr);
+
+    if (newSupTechStatsFile === true) {
+      // add formulas linking Weekend Days sheet sup/tech #'s to Imported Data
+      addSupTechFormulas(yearlyStatsSs, yearStr);
+    }
+
+    return [yearFolder, yearlyStatsFile, supTechStatsFile];
   }
 
   /**
@@ -270,15 +291,14 @@ const YearlyStats = (function (
     yearlySupTechFile,
     codeMoveFile,
     month,
-    yearMonthStr,
-    yearStr
+    yearMonthStr
   ) {
     const spreadsheet = SpreadsheetApp.openById(yearlyStatsFile.getId());
     const importedDataSheet = spreadsheet.getSheetByName("Imported Data");
     const row = 2;
     const column = month + 2;
     const colChar = String.fromCharCode(66 + month);
-    const formula = "=IMPORTRANGE(" + colChar + '2,"Totals!AD1:AD36")';
+    const formula = "=IMPORTRANGE(" + colChar + "2,\"Totals!AD1:AD36\")";
 
     spreadsheet
       .getSheetByName("Weekend Days")
@@ -300,11 +320,11 @@ const YearlyStats = (function (
   return Object.freeze({
     getFolderAndFiles,
     monthlyUpdate,
+    getYearFolder
   });
 })(DriveApp, PropertiesService, SitesApp, SpreadsheetApp);
 
-/******************************************************************************/
-</code></pre>
+/******************************************************************************/</code></pre>
         </article>
     </section>
 
@@ -320,7 +340,7 @@ const YearlyStats = (function (
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Fri Feb 26 2021 18:21:16 GMT-0500 (Eastern Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sun Feb 28 2021 09:29:32 GMT-0500 (Eastern Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

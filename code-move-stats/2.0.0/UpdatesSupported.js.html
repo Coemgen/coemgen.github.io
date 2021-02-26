@@ -26,9 +26,10 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/* eslint-disable max-statements */
+            <pre class="prettyprint source linenums"><code>/* eslint-disable max-len */
+/* eslint-disable max-statements */
 /*jslint browser:true, long:true, white:true*/
-/*global GmailApp, PropertiesService, SpreadsheetApp, SupTechUtils*/
+/*global GmailApp, PropertiesService, SpreadsheetApp, SupTechStats*/
 
 /**************************************************************************
 Functions specifically for Kristen Allfrey's/Brett's Updates Supported Stats
@@ -102,12 +103,11 @@ const UpdatesSupported = (function (
     today.setDate(today.getDate() - intDaysToSubtract);
 
     var strDateFormat;
-    strDateFormat =
-      today.getFullYear() +
-      "/" +
-      (today.getMonth() + 1) +
-      "/" +
-      today.getDate();
+    strDateFormat = today.getFullYear()
+      + "/"
+      + (today.getMonth() + 1)
+      + "/"
+      + today.getDate();
 
     return strDateFormat;
   }
@@ -144,14 +144,12 @@ const UpdatesSupported = (function (
     var d2 = new Date(vDate);
     var hours2 = vTime.substr(0, vTime.indexOf(":"));
     var minutes2 = vTime.substr(vTime.indexOf(":") + 1, 2);
-    var ampm2 =
-      vTime.indexOf("a") > -1 || vTime.indexOf("m") > -1 ? "AM" : "PM";
-    var adjHours2 =
-      hours2 == 12 &amp;&amp; ampm2 == "AM"
-        ? "00"
-        : hours2 &lt; 12 &amp;&amp; ampm2 == "PM"
-        ? 12 + parseInt(hours2)
-        : hours2;
+    var ampm2 = vTime.indexOf("a") > -1 || vTime.indexOf("m") > -1 ? "AM" : "PM";
+    var adjHours2 = hours2 == 12 &amp;&amp; ampm2 == "AM"
+      ? "00"
+      : hours2 &lt; 12 &amp;&amp; ampm2 == "PM"
+      ? 12 + parseInt(hours2)
+      : hours2;
 
     d2.setHours(adjHours2, minutes2);
 
@@ -202,14 +200,14 @@ const UpdatesSupported = (function (
         tRelease = yAutm[6];
 
         if (
-          x !== y &amp;&amp;
-          sSite == tSite &amp;&amp;
-          sEvent == tEvent &amp;&amp;
-          sDate == tDate &amp;&amp;
-          sDay == tDay &amp;&amp;
-          sTime == tTime &amp;&amp;
-          sRelease == tRelease &amp;&amp;
-          sTask == tTask
+          x !== y
+          &amp;&amp; sSite == tSite
+          &amp;&amp; sEvent == tEvent
+          &amp;&amp; sDate == tDate
+          &amp;&amp; sDay == tDay
+          &amp;&amp; sTime == tTime
+          &amp;&amp; sRelease == tRelease
+          &amp;&amp; sTask == tTask
         ) {
           tableData.splice(y, 1);
         }
@@ -225,20 +223,16 @@ const UpdatesSupported = (function (
     // 3.) Re-map array to data within &lt;td>&lt;/td>
     // 4.) Based on the number of columns rebuild data rows [row][column]
 
-    var tableDataRows = (tableData.match(/&lt;\/tr>/g) || []).length - 1; // Minus the header row
-
     var tableDataTd = tableData.split("\n");
     tableDataTd = tableDataTd.filter((line) => line.indexOf("&lt;td") == 0);
 
-    tableDataTd = tableDataTd.map(function (val, i) {
+    tableDataTd = tableDataTd.map(function (val) {
       var capture = />(.+)&lt;/.exec(val);
       if (capture == null) {
         return "";
       } else {
         return capture[1];
       }
-
-      return val; // default to return what we have
     });
 
     var tableDataRowsRebuilt = [];
@@ -269,9 +263,7 @@ const UpdatesSupported = (function (
       sDay,
       sTime,
       sRelease,
-      sTask,
-      sSource,
-      sRowCompare;
+      sTask;
     var tRowIndex,
       tRow,
       tSite,
@@ -280,9 +272,7 @@ const UpdatesSupported = (function (
       tDay,
       tTime,
       tRelease,
-      tTask,
-      tSource,
-      tRowCompare;
+      tTask;
     var sDateMonth, sDateDay, sDateYear;
 
     for (var x = 0; x &lt; files.length; x++) {
@@ -293,9 +283,7 @@ const UpdatesSupported = (function (
 
       // Skip header rows in Sheet
       for (
-        sRowIndex = 2;
-        sRowIndex &lt; sheetData.length &amp;&amp; tableDataRows.length > 0;
-        sRowIndex++
+        sRowIndex = 2; sRowIndex &lt; sheetData.length &amp;&amp; tableDataRows.length > 0; sRowIndex++
       ) {
         sRow = sheetData[sRowIndex];
         sSite = sRow[1];
@@ -307,10 +295,9 @@ const UpdatesSupported = (function (
         sTask = sRow[8];
         //sSource = sRow[9];
 
-        sDateMonth =
-          sDate.getMonth() + 1 &lt; 10
-            ? "0" + (sDate.getMonth() + 1)
-            : sDate.getMonth() + 1;
+        sDateMonth = sDate.getMonth() + 1 &lt; 10
+          ? "0" + (sDate.getMonth() + 1)
+          : sDate.getMonth() + 1;
         sDateDay = sDate.getDate();
         sDateYear = sDate.getFullYear().toString().substr(-2);
         sDate = sDateMonth + "/" + sDateDay + "/" + sDateYear; // Modify date to be same format as tableData
@@ -318,9 +305,7 @@ const UpdatesSupported = (function (
         //sRowCompare = [sSite, sEvent, sDate, sDay, sTime, sRelease, sTask];
 
         for (
-          tRowIndex = tableDataRows.length - 1;
-          tRowIndex >= 0;
-          tRowIndex--
+          tRowIndex = tableDataRows.length - 1; tRowIndex >= 0; tRowIndex--
         ) {
           tRow = tableDataRows[tRowIndex];
           tSite = tRow[0];
@@ -334,13 +319,13 @@ const UpdatesSupported = (function (
           //tRowCompare = [tSite, tEvent, tDate, tDay, tTime, tRelease, tTask];
 
           if (
-            sSite == tSite &amp;&amp;
-            sEvent == tEvent &amp;&amp;
-            sDate == tDate &amp;&amp;
-            sDay == tDay &amp;&amp;
-            sTime == tTime &amp;&amp;
-            sRelease == tRelease &amp;&amp;
-            sTask == tTask
+            sSite == tSite
+            &amp;&amp; sEvent == tEvent
+            &amp;&amp; sDate == tDate
+            &amp;&amp; sDay == tDay
+            &amp;&amp; sTime == tTime
+            &amp;&amp; sRelease == tRelease
+            &amp;&amp; sTask == tTask
           ) {
             tableDataRows.splice(tRowIndex, 1); // Removes the record from array
           }
@@ -351,169 +336,20 @@ const UpdatesSupported = (function (
     return tableDataRows;
   }
 
-  function checkSheetForExistingRecordsAndFilterArray(
-    sheet,
-    tableDataRows,
-    type
-  ) {
-    // Table Data Rows
-    // 0: Site
-    // 1: Master Task
-    // 2: Name
-    // 3: Date
-    // 4: Day
-    // 5: Start (Time)
-    // 6: Release
-    // 7: Update Type (i.e. "Topoff", "Bundle Topoff")
-    // 8: Resp Group
-    // 9: Rgn
-    // 10: Conf
-    // 11: Coordinator
-    // 12: Hosted
-    // 13: Hrdwre
-    // 14: MPM
-
-    // Sheet Data Rows
-    // 0: Date (record logged; skip)
-    // 1: Site
-    // 2: Event
-    // 3: E. Date
-    // 4: E. Day
-    // 5: E. Time
-    // 6: Platform
-    // 7: Release
-    // 8: Task
-    // 9: Source
-
-    var sheetData = sheet.getDataRange().getValues();
-
-    var sRowIndex,
-      sRow,
-      sSite,
-      sEvent,
-      sDate,
-      sDay,
-      sTime,
-      sRelease,
-      sTask,
-      sSource,
-      sRowCompare;
-    var tRowIndex,
-      tRow,
-      tSite,
-      tEvent,
-      tDate,
-      tDay,
-      tTime,
-      tRelease,
-      tTask,
-      tSource,
-      tRowCompare;
-
-    var sDateMonth, sDateDay, sDateYear;
-
-    // Skip header rows in Sheet
-    for (
-      sRowIndex = 2;
-      sRowIndex &lt; sheetData.length &amp;&amp; tableDataRows.length > 0;
-      sRowIndex++
-    ) {
-      sRow = sheetData[sRowIndex];
-      sSite = sRow[1];
-      sEvent = sRow[2];
-      sDate = new Date(sRow[3]);
-      sDay = sRow[4];
-      sTime = sRow[5];
-      sRelease = sRow[7];
-      sTask = sRow[8];
-      //sSource = sRow[9];
-
-      sDateMonth =
-        sDate.getMonth() + 1 &lt; 10
-          ? "0" + (sDate.getMonth() + 1)
-          : sDate.getMonth() + 1;
-      sDateDay = sDate.getDate();
-      sDateYear = sDate.getFullYear().toString().substr(-2);
-      sDate = sDateMonth + "/" + sDateDay + "/" + sDateYear; // Modify date to be same format as tableData
-
-      //sRowCompare = [sSite, sEvent, sDate, sDay, sTime, sRelease, sTask];
-
-      for (tRowIndex = tableDataRows.length - 1; tRowIndex >= 0; tRowIndex--) {
-        tRow = tableDataRows[tRowIndex];
-        tSite = tRow[0];
-        tEvent = type;
-        tDate = tRow[3];
-        tDay = tRow[4];
-        tTime = tRow[5];
-        tRelease = tRow[6];
-        tTask = tRow[1];
-
-        if (
-          sSite == tSite &amp;&amp;
-          sEvent == tEvent &amp;&amp;
-          sDate == tDate &amp;&amp;
-          sDay == tDay &amp;&amp;
-          sTime == tTime &amp;&amp;
-          sRelease == tRelease &amp;&amp;
-          sTask == tTask
-        ) {
-          tableDataRows.splice(tRowIndex, 1); // Removes the record from array
-        }
-      }
-    }
-
-    return tableDataRows;
-  }
-
   function addUpdatesToSpreadsheetTwo(tableData, type, years, files) {
-    var file, spreadsheet, sheet, sheetData, iYear;
-    var sRowIndex,
-      sRow,
-      sSite,
-      sEvent,
-      sDate,
-      sDay,
-      sTime,
-      sRelease,
-      sTask,
-      sSource,
-      sRowCompare;
-    var tRowIndex,
-      tRow,
-      tSite,
-      tEvent,
-      tDate,
-      tDay,
-      tTime,
-      tRelease,
-      tTask,
-      tSource,
-      tRowCompare;
-    var sDateMonth, sDateDay, sDateYear;
-
+    var file, spreadsheet, sheet, iYear;
     var vSite,
       vTask,
-      vName,
       vDate,
       vDay,
       vTime,
-      vRelease,
-      vUpdateType,
-      vRespGroup,
-      vRegion,
-      vConf,
-      vCoordinator,
-      vHosted,
-      vHardware,
-      vMPM;
+      vRelease;
     var rowData, vPlatform, vSource;
     var cDate = new Date();
-
     var cYear = cDate.getFullYear();
-    var cMonth =
-      cDate.getMonth() + 1 &lt; 10
-        ? "0" + (cDate.getMonth() + 1)
-        : cDate.getMonth() + 1;
+    var cMonth = cDate.getMonth() + 1 &lt; 10
+      ? "0" + (cDate.getMonth() + 1)
+      : cDate.getMonth() + 1;
     var cDay = cDate.getDate();
 
     var strDate = cYear + "-" + cMonth + "-" + cDay;
@@ -522,12 +358,10 @@ const UpdatesSupported = (function (
       rowData = tableData[i];
       vSite = rowData[0];
       vTask = rowData[1];
-      vName = rowData[2];
       vDate = rowData[3];
       vDay = rowData[4];
       vTime = rowData[5];
       vRelease = rowData[6];
-      vUpdateType = rowData[7];
 
       vPlatform = ""; // Not given from table.
 
@@ -563,97 +397,11 @@ const UpdatesSupported = (function (
       ]);
 
       // Get last row, and update Task (I) to be a hyperlink
-      var vFormulaTaskHyperlink =
-        '=HYPERLINK("https://cswebtools.meditech.com/tasks/view?taskID=' +
-        vTask +
-        '",' +
-        vTask +
-        ")";
-      sheet
-        .getRange("I" + sheet.getLastRow())
-        .setFormula(vFormulaTaskHyperlink);
-    }
-  }
-
-  function addUpdatesToSpreadsheet(sheet, tableData, type) {
-    // 0: Site
-    // 1: Master Task
-    // 2: Name
-    // 3: Date
-    // 4: Day
-    // 5: Start (Time)
-    // 6: Release
-    // 7: Update Type (i.e. "Topoff", "Bundle Topoff")
-    // 8: Resp Group
-    // 9: Rgn
-    // 10: Conf
-    // 11: Coordinator
-    // 12: Hosted
-    // 13: Hrdwre
-    // 14: MPM
-
-    var vSite,
-      vTask,
-      vName,
-      vDate,
-      vDay,
-      vTime,
-      vRelease,
-      vUpdateType,
-      vRespGroup,
-      vRegion,
-      vConf,
-      vCoordinator,
-      vHosted,
-      vHardware,
-      vMPM;
-    var rowData, vPlatform, vSource;
-    var cDate = new Date();
-
-    var cYear = cDate.getFullYear();
-    var cMonth =
-      cDate.getMonth() + 1 &lt; 10
-        ? "0" + (cDate.getMonth() + 1)
-        : cDate.getMonth() + 1;
-    var cDay = cDate.getDate() &lt; 10 ? "0" + cDay.getDate() : cDate.getDate();
-
-    var strDate = cYear + "-" + cMonth + "-" + cDay;
-
-    for (var i = 0; i &lt; tableData.length; i++) {
-      rowData = tableData[i];
-      vSite = rowData[0];
-      vTask = rowData[1];
-      vName = rowData[2];
-      vDate = rowData[3];
-      vDay = rowData[4];
-      vTime = rowData[5];
-      vRelease = rowData[6];
-      vUpdateType = rowData[7];
-
-      vPlatform = ""; // Not given from table.
-      vSource = "Script/AUTM";
-
-      //                 A      B      C     D      E     F      G          H         I       J
-      sheet.appendRow([
-        strDate,
-        vSite,
-        type,
-        vDate,
-        vDay,
-        vTime,
-        vPlatform,
-        vRelease,
-        vTask,
-        vSource,
-      ]);
-
-      // Get last row, and update Task (I) to be a hyperlink
-      var vFormulaTaskHyperlink =
-        '=HYPERLINK("https://cswebtools.meditech.com/tasks/view?taskID=' +
-        vTask +
-        '",' +
-        vTask +
-        ")";
+      var vFormulaTaskHyperlink = "=HYPERLINK(\"https://cswebtools.meditech.com/tasks/view?taskID="
+        + vTask
+        + "\","
+        + vTask
+        + ")";
       sheet
         .getRange("I" + sheet.getLastRow())
         .setFormula(vFormulaTaskHyperlink);
@@ -682,7 +430,9 @@ const UpdatesSupported = (function (
     for (var i = 0; i &lt; tableData.length; i++) {
       var iYear = new Date(tableData[i][3]).getFullYear();
       if (!Years.includes(iYear)) {
-        var iFile = SupTechUtils.getSupervisorTechSpreadsheetByYear(iYear);
+        var iFile, newIFile;
+        // eslint-disable-next-line no-unused-vars
+        [iFile, newIFile] = SupTechStats.getDataFile(undefined, iYear.toString());
         Years.push(iYear);
         Files.push(iFile);
       }
@@ -717,13 +467,12 @@ const UpdatesSupported = (function (
     );
     strSubject = "Upcoming Update Summary Weekends";
     strAfterDate = getPreviousFridayDate();
-    strSearchQuery =
-      "from:(" +
-      strSender +
-      ") subject:(" +
-      strSubject +
-      ") after:" +
-      strAfterDate;
+    strSearchQuery = "from:("
+      + strSender
+      + ") subject:("
+      + strSubject
+      + ") after:"
+      + strAfterDate;
     // EX: from:(autm-automated-emails-group@meditech.com) subject:(Upcoming Update Summary Weekends) after:2020/9/18
 
     // DEBUG:
@@ -748,7 +497,7 @@ const UpdatesSupported = (function (
       for (var i = 0; i &lt; tempTableDataLiveRows.length; i++)
         tableDataLiveRows.push(tempTableDataLiveRows[i]);
 
-      for (var i = 0; i &lt; tempTableDataTestRows.length; i++)
+      for (i = 0; i &lt; tempTableDataTestRows.length; i++)
         tableDataTestRows.push(tempTableDataTestRows[i]);
     }
 
@@ -797,10 +546,9 @@ const UpdatesSupported = (function (
   }
 
   return Object.freeze({
-    main,
+    main
   });
-})(GmailApp, PropertiesService, SpreadsheetApp);
-</code></pre>
+})(GmailApp, PropertiesService, SpreadsheetApp);</code></pre>
         </article>
     </section>
 
@@ -816,7 +564,7 @@ const UpdatesSupported = (function (
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Fri Feb 26 2021 18:21:16 GMT-0500 (Eastern Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sun Feb 28 2021 09:29:32 GMT-0500 (Eastern Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
