@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: $Drivers.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: $Drivers.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/* eslint-disable max-statements */
+/*jslint browser:true, white:true*/
+/*global
+DriveApp, CodeMoveCounts, CsctMessages, MonthlyRun, PropertiesService, 
+SendEmail, UpdatesSupported
+*/
+
+// Project documentation at:  https://coemgen.github.io/code-move-stats/2.0.0/index.html
+
+/**
+ * @file Defines driver functions for running public methods.
+ *
+ * &lt;p>Google Script Project values must be set for the following
+ * {@linkcode https://developers.google.com/apps-script/guides/properties
+ * script properties}:
+ * &lt;ul>
+ *  &lt;li>&lt;b>autmGroupEmail&lt;/b>&amp;nbsp;&amp;ndash;@nbsp;Autm group emails are searched
+ * for updates supported messages&lt;/li>
+ *  &lt;li>&lt;b>codeMoveTemplateId&lt;/b>&amp;nbsp;&amp;ndash;&amp;nbsp;the spreadsheet id for the
+ *  montly totals template&lt;/li>
+ *  &lt;li>&lt;b>csctGroupEmail&lt;/b>&amp;nbsp;&amp;ndash;@nbsp;CSCT group emails are searched
+ * for CSCT messages&lt;/li>
+ *  &lt;li>&lt;b>dataFolderId&lt;/b>&amp;nbsp;&amp;ndash;&amp;nbsp;the parent folder for yearly data
+ *  folders&lt;/li>
+ *  &lt;li>&lt;b>deliveriesSpreadsheetId&amp;nbsp;&amp;ndash;&amp;nbsp;the C/S to 6.x Pathway Info
+ * spreadsheet&lt;/b>&lt;/li>
+ *  &lt;li>&lt;b>distributionType&lt;/b>&amp;nbsp;&amp;ndash;&amp;nbsp;
+ * Email distribution type (values are: &lt;b>live&lt;/b> or &lt;b>test&lt;/b>)&lt;/li>
+ *  &lt;li>&lt;b>googleSiteUrl&lt;/b>&amp;nbsp;&amp;ndash;&amp;nbsp;the url for the project's
+ * associated Google Site&lt;/li>
+ *  &lt;li>&lt;b>groupEmail&lt;/b>&amp;nbsp;&amp;ndash;&amp;nbsp;the Google Group email address
+ * associated with this project&lt;/li>
+ *  &lt;li>&lt;b>managerEmail&lt;/b>&amp;nbsp;&amp;ndash;&amp;nbsp;the group manager's email address
+ *  &lt;/li>
+ *  &lt;li>&lt;b>mgrsStaffEmail&lt;/b>&amp;nbsp;&amp;ndash;&amp;nbsp;the group manager's email address
+ *  used for addressing all the manager's staff&lt;/li>
+ *  &lt;li>&lt;b>secretaryEmail&lt;/b>&amp;nbsp;&amp;ndash;&amp;nbsp;the email address for the
+ * group's secretary's secretary&lt;/li>
+ *  &lt;li>&lt;b>mgrsDirectsEmail&lt;/b>&amp;nbsp;&amp;ndash;&amp;nbsp;the Google Group email address
+ * for the group's supervisors&lt;/li>
+ *  &lt;li>&lt;b>techEmails&lt;/b>&amp;nbsp;&amp;ndash;&amp;nbsp;the Google Group email address for
+ * the group's tech staff&lt;/li>
+ *  &lt;li>&lt;b>testers&lt;/b>&amp;nbsp;&amp;ndash;&amp;nbsp;the email addresses for Weekend Stats
+ * testers&lt;/li>
+ *  &lt;li>&lt;b>yearlyStatsTemplateId&lt;/b>&amp;nbsp;&amp;ndash;&amp;nbsp;the spreadsheet id for
+ * the yearly stats template&lt;/li>
+ *  &lt;li>&lt;b>yearlySupTechTemplateId&lt;/b>&amp;nbsp;&amp;ndash;&amp;nbsp;the spreadsheet id for
+ * the Supervisor/Tech stats spreadsheet template&lt;/li>
+ * &lt;/ul>
+ * &lt;p>Run the script using the {@linkcode
+ * https://developers.google.com/apps-script/guides/v8-runtime V8 Runtime}.
+ */
+
+/**
+ * @namespace Drivers
+ */
+
+/**
+ * Function to be called to set permissions when new Google Script script class
+ * methods are being called.
+ */
+// eslint-disable-next-line no-unused-vars
+function getScriptPermissions() {
+  return;
+}
+
+/**
+ * Function to be called by a monthly {@linkcode
+ * https://developers.google.com/apps-script/guides/triggers/installable
+ * Trigger} to set up the totals spreadsheet for each month and a yearly
+ * stats spreadsheet for each year.
+ * @function monthlyRunMain
+ * @memberof Drivers
+ * @public
+ */
+// eslint-disable-next-line no-unused-vars
+function monthlyRunMain() {
+  "use strict";
+  MonthlyRun.main();
+}
+
+// eslint-disable-next-line no-unused-vars
+function csctMessages() {
+  CsctMessages.main();
+}
+
+// eslint-disable-next-line no-unused-vars
+function updatesSupported() {
+  UpdatesSupported.main();
+}
+
+/**
+ * Updates staff on the Code Move Count template spreadsheet.
+ * &lt;br>Run this function:
+ * &lt;ol>
+ * &lt;li>Monthly via a {@linkcode
+ * https://developers.google.com/apps-script/guides/triggers/installable
+ * Trigger} before running the &lt;b>&lt;code>monthlyRunMain()&lt;/code>&lt;/b> function&lt;/li>
+ * &lt;li>Periodically when changes have been made to staffing in the associated
+ * Code Move Google Group&lt;/li>
+ * &lt;/ol>
+ * @function initCodeMoveTemplateMain
+ * @memberof Drivers
+ * @public
+ */
+// eslint-disable-next-line no-unused-vars
+function initCodeMoveTemplate() {
+  "use strict";
+  CodeMoveCounts.initTemplate();
+}
+
+/**
+ * Use this funtion for testing the project.
+ * Months are numbered 0..11
+ * @function monthlyRunTest
+ * @memberof Drivers
+ * @private
+ */
+// eslint-disable-next-line no-unused-vars
+function monthlyRunTest() {
+  "use strict";
+  const numMonths = 2;
+  const startYear = 2020;
+  const startMonth = 11;
+  const monthArr = Array.from({
+    length: numMonths,
+  });
+  monthArr.forEach(function (ignore, index) {
+    MonthlyRun.main(startYear, startMonth + index);
+  });
+
+  return undefined;
+}
+
+/**
+ * Function to be called by a periodic {@linkcode
+ * https://developers.google.com/apps-script/guides/triggers/installable
+ * Trigger} to send a reminder for the Code Move Group to update the
+ * spreadsheet.
+ * @function sendWeeklyReminder
+ * @memberof Drivers
+ * @public
+ */
+// eslint-disable-next-line no-unused-vars
+function sendReminder() {
+  "use strict";
+  const d = new Date();
+  const dayDate = d.getDate();
+  const yearStr = d.getFullYear().toString();
+  const month = d.getMonth() + 1;
+  const monthStr = month.toString().padStart(2, 0);
+  const dataFolder = DriveApp.getFolderById(
+    PropertiesService.getScriptProperties().getProperty("dataFolderId")
+  );
+  const folderIterator = dataFolder.getFoldersByName(yearStr);
+  const yearFolder = folderIterator.next();
+  const fileIterator = yearFolder.getFilesByName(
+    "Weekend Code Move Count" + " " + yearStr + "-" + monthStr
+  );
+  const codeMoveFileId = fileIterator.next().getId();
+  // if it's the 1st of the month don't send a weekly reminder
+  const weeklyReminder = dayDate === 1 ? false : true;
+
+  SendEmail.main(codeMoveFileId, yearStr, monthStr, weeklyReminder);
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="CodeMoveCounts.html">CodeMoveCounts</a></li><li><a href="CsctMessages.html">CsctMessages</a></li><li><a href="Drivers.html">Drivers</a></li><li><a href="MonthlyRun.html">MonthlyRun</a></li><li><a href="SendEmail.html">SendEmail</a></li><li><a href="StaffUtilities.html">StaffUtilities</a></li><li><a href="SupTechStats.html">SupTechStats</a></li><li><a href="UpdatesSupported.html">UpdatesSupported</a></li><li><a href="YearlyStats.html">YearlyStats</a></li></ul><h3>Global</h3><ul><li><a href="global.html#FIRST_STAFF_ROW">FIRST_STAFF_ROW</a></li><li><a href="global.html#LAST_STAFF_ROW">LAST_STAFF_ROW</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Fri Feb 26 2021 09:13:36 GMT-0500 (Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

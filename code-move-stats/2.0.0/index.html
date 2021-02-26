@@ -54,7 +54,7 @@
 
 <header>
     
-        <h2>Drivers.js</h2>
+        <h2>$Drivers.js</h2>
         
     
 </header>
@@ -63,25 +63,7 @@
     <div class="container-overview">
     
         
-            <div class="description">Defines driver functions for running public methods.
-
-<p>Google Script Project values must be set for the following
-<a href="https://developers.google.com/apps-script/guides/properties">script properties</a>:
-<ul>
- <li><b>codeMoveTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id for the
- montly totals template</li>
- <li><b>dataFolderId</b>&nbsp;&ndash;&nbsp;the parent folder for yearly data
- folders</li>
- <li><b>distributionType</b>&nbsp;&ndash;&nbsp;
-Email distribution type (values are: <b>live</b> or <b>test</b>)</li>
- <li><b>groupEmail</b>&nbsp;&ndash;&nbsp;the Google Group email associated
- with this project</li>
- <li><b>yearlyStatsTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id for
- the yearly stats template</li>
- <li><b>googleSiteUrl</b>&nbsp;&ndash;&nbsp;the url for the project's
- associated Google Site</li>
-</ul>
-<p>Run the script using the <a href="https://developers.google.com/apps-script/guides/v8-runtime">V8 Runtime</a>.</div>
+            <div class="description">Defines driver functions for running public methods.<p>Google Script Project values must be set for the following{@linkcode https://developers.google.com/apps-script/guides/propertiesscript properties}:<ul> <li><b>autmGroupEmail</b>&nbsp;&ndash;@nbsp;Autm group emails are searchedfor updates supported messages</li> <li><b>codeMoveTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id for the montly totals template</li> <li><b>csctGroupEmail</b>&nbsp;&ndash;@nbsp;CSCT group emails are searchedfor CSCT messages</li> <li><b>dataFolderId</b>&nbsp;&ndash;&nbsp;the parent folder for yearly data folders</li> <li><b>deliveriesSpreadsheetId&nbsp;&ndash;&nbsp;the C/S to 6.x Pathway Infospreadsheet</b></li> <li><b>distributionType</b>&nbsp;&ndash;&nbsp;Email distribution type (values are: <b>live</b> or <b>test</b>)</li> <li><b>googleSiteUrl</b>&nbsp;&ndash;&nbsp;the url for the project'sassociated Google Site</li> <li><b>groupEmail</b>&nbsp;&ndash;&nbsp;the Google Group email addressassociated with this project</li> <li><b>managerEmail</b>&nbsp;&ndash;&nbsp;the group manager's email address </li> <li><b>mgrsStaffEmail</b>&nbsp;&ndash;&nbsp;the group manager's email address used for addressing all the manager's staff</li> <li><b>secretaryEmail</b>&nbsp;&ndash;&nbsp;the email address for thegroup's secretary's secretary</li> <li><b>mgrsDirectsEmail</b>&nbsp;&ndash;&nbsp;the Google Group email addressfor the group's supervisors</li> <li><b>techEmails</b>&nbsp;&ndash;&nbsp;the Google Group email address forthe group's tech staff</li> <li><b>testers</b>&nbsp;&ndash;&nbsp;the email addresses for Weekend Statstesters</li> <li><b>yearlyStatsTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id forthe yearly stats template</li> <li><b>yearlySupTechTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id forthe Supervisor/Tech stats spreadsheet template</li></ul><p>Run the script using the <a href="https://developers.google.com/apps-script/guides/v8-runtime">V8 Runtime</a>.</div>
         
 
         
@@ -116,7 +98,7 @@ Email distribution type (values are: <b>live</b> or <b>test</b>)</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Drivers.js.html">Drivers.js</a>, <a href="Drivers.js.html#line9">line 9</a>
+        <a href="$Drivers.js.html">$Drivers.js</a>, <a href="$Drivers.js.html#line10">line 10</a>
     </li></ul></dd>
     
 
@@ -165,7 +147,7 @@ Email distribution type (values are: <b>live</b> or <b>test</b>)</li>
 
 <header>
     
-        <h2>InitCodeMoveTemplate.js</h2>
+        <h2>CodeMoveCounts.js</h2>
         
     
 </header>
@@ -174,16 +156,7 @@ Email distribution type (values are: <b>live</b> or <b>test</b>)</li>
     <div class="container-overview">
     
         
-            <div class="description">Defines the <code><b>InitCodeMoveTemplate</b></code> module.  This
-module initializes the Code Move Counts Template Spreadsheet.
-<p>Before using this module, values must be set for the following
-<a href="https://developers.google.com/apps-script/guides/properties">script properties</a>:
-<ul>
- <li><b>codeMoveTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id for the
- montly totals template</li>
- <li><b>groupEmail</b>&nbsp;&ndash;&nbsp;the Google Group email associated
- with this project</li>
-</ul></div>
+            <div class="description">Defines the <code><b>CodeMoveCounts</b></code> module.</div>
         
 
         
@@ -208,13 +181,6 @@ module initializes the Code Move Counts Template Spreadsheet.
     
 
     
-    <dt class="tag-author">Author:</dt>
-    <dd class="tag-author">
-        <ul>
-            <li><a href="mailto:kevin.griffin@gmail.com">Kevin Griffin</a></li>
-        </ul>
-    </dd>
-    
 
     
 
@@ -225,114 +191,7 @@ module initializes the Code Move Counts Template Spreadsheet.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="InitCodeMoveTemplate.js.html">InitCodeMoveTemplate.js</a>, <a href="InitCodeMoveTemplate.js.html#line4">line 4</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
-
-
-
-
-
-
-
-<section>
-
-<header>
-    
-        <h2>InitStatsTemplate.js</h2>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-            <div class="description">Defines the <code><b>InitStatsTemplate</b></code> module.  This module
-initializes the Stats Template spreadsheet's <b>Weekend Days</b> sheet with
-A1Notation references to its <b>Imported Data</b> sheet.
-<p>Before using this module, values must be set for the following <a href="https://developers.google.com/apps-script/guides/properties">script properties</a>:
-<ul>
- <li><b>yearlyStatsTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id for
- the yearly stats template</li>
-</ul></div>
-        
-
-        
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-author">Author:</dt>
-    <dd class="tag-author">
-        <ul>
-            <li><a href="mailto:kevin.griffin@gmail.com">Kevin Griffin</a></li>
-        </ul>
-    </dd>
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="InitStatsTemplate.js.html">InitStatsTemplate.js</a>, <a href="InitStatsTemplate.js.html#line4">line 4</a>
+        <a href="CodeMoveCounts.js.html">CodeMoveCounts.js</a>, <a href="CodeMoveCounts.js.html#line4">line 4</a>
     </li></ul></dd>
     
 
@@ -390,21 +249,7 @@ A1Notation references to its <b>Imported Data</b> sheet.
     <div class="container-overview">
     
         
-            <div class="description">Defines the <code><b>MonthlyRun</b></code> module.  The module builds
-the file structure used for compiling and viewing stats.  Create a script
-trigger to run the <code><b>MonthlyRun.main()</b></code> method via a driver
-function one time each month.
-<p>Before using this module, values must be set for these <a href="https://developers.google.com/apps-script/guides/properties">script properties</a>:
-<ul>
- <li><b>yearlyStatsTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id for
- the yearly stats template</li>
- <li><b>dataFolderId</b>&nbsp;&ndash;&nbsp;the parent folder for yearly data
- folders</li>
- <li><b>codeMoveTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id for the
- monthly totals template</li>
- <li><b>googleSiteUrl</b>&nbsp;&ndash;&nbsp;the url for the project's
- associated Google Site</li>
-</ul></div>
+            <div class="description">Defines the <code><b>MonthlyRun</b></code> module.</div>
         
 
         
@@ -428,13 +273,6 @@ function one time each month.
 
     
 
-    
-    <dt class="tag-author">Author:</dt>
-    <dd class="tag-author">
-        <ul>
-            <li><a href="mailto:kevin.griffin@gmail.com">Kevin Griffin</a></li>
-        </ul>
-    </dd>
     
 
     
@@ -495,101 +333,6 @@ function one time each month.
 
 <header>
     
-        <h2>RestoreImportedData.js</h2>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-            <div class="description">Defines the <code><b>RestoreImportedData</b></code> module.  This
-module relinks monthly totals to a new yearly stats spreadsheet.  Relinking
-should only be needed to repair data corruption.</div>
-        
-
-        
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="RestoreImportedData.js.html">RestoreImportedData.js</a>, <a href="RestoreImportedData.js.html#line4">line 4</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
-
-
-
-
-
-
-
-<section>
-
-<header>
-    
         <h2>SendEmail.js</h2>
         
     
@@ -599,16 +342,7 @@ should only be needed to repair data corruption.</div>
     <div class="container-overview">
     
         
-            <div class="description">Defines the <code><b>SendEmail</b></code> module.  This module builds
-and sends emails.  Create a script trigger to periodically run the <code><b>
-SendEmail.main()</b></code> function via a driver function.
-<p>Before using this module, values must be set for these <a href="https://developers.google.com/apps-script/guides/properties">script properties</a>:
-<ul>
- <li><b>distributionType</b>&nbsp;&ndash;&nbsp;
-Email distribution type (values are: <b>live</b> or <b>test</b>)</li>
- <li><b>groupEmail</b>&nbsp;&ndash;&nbsp;the Google Group email associated
- with this project</li>
-</ul></div>
+            <div class="description">Defines the <code><b>SendEmail</b></code> module.  This module buildsand sends emails.  Create a script trigger to periodically run the <code><b>SendEmail.main()</b></code> function via a driver function.<p>Before using this module, values must be set for these {@linkcodehttps://developers.google.com/apps-script/guides/propertiesscript properties}:<ul> <li><b>distributionType</b>&nbsp;&ndash;&nbsp;Email distribution type (values are: <b>live</b> or <b>test</b>)</li> <li><b>groupEmail</b>&nbsp;&ndash;&nbsp;the Google Group email associated with this project</li></ul></div>
         
 
         
@@ -710,8 +444,7 @@ Email distribution type (values are: <b>live</b> or <b>test</b>)</li>
     <div class="container-overview">
     
         
-            <div class="description">Defines the <code><b>StaffUtilities</b></code> module.  This module has
-functions for getting user (staff) information.</div>
+            <div class="description">Defines the <code><b>StaffUtilities</b></code> module.  This module hasfunctions for getting user (staff) information.</div>
         
 
         
@@ -788,16 +521,202 @@ functions for getting user (staff) information.</div>
 
 
 
+
+
+
+<section>
+
+<header>
+    
+        <h2>SupTechStats.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">Defines the <code><b>SupTechStats</b></code> module.  This module hasfunctions for building, initializing, and getting Superviser/Tech Statsspreadsheets.</div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="SupTechStats.js.html">SupTechStats.js</a>, <a href="SupTechStats.js.html#line4">line 4</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>YearlyStats.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">Defines the <code><b>YearlyStats</b></code> module.</div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="YearlyStats.js.html">YearlyStats.js</a>, <a href="YearlyStats.js.html#line6">line 6</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="Drivers.html">Drivers</a></li><li><a href="InitCodeMoveTemplate.html">InitCodeMoveTemplate</a></li><li><a href="InitStatsTemplate.html">InitStatsTemplate</a></li><li><a href="MonthlyRun.html">MonthlyRun</a></li><li><a href="RestoreImportedData.html">RestoreImportedData</a></li><li><a href="SendEmail.html">SendEmail</a></li><li><a href="StaffUtilities.html">StaffUtilities</a></li></ul><h3>Global</h3><ul><li><a href="global.html#FIRST_STAFF_ROW">FIRST_STAFF_ROW</a></li><li><a href="global.html#LAST_STAFF_ROW">LAST_STAFF_ROW</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="CodeMoveCounts.html">CodeMoveCounts</a></li><li><a href="CsctMessages.html">CsctMessages</a></li><li><a href="Drivers.html">Drivers</a></li><li><a href="MonthlyRun.html">MonthlyRun</a></li><li><a href="SendEmail.html">SendEmail</a></li><li><a href="StaffUtilities.html">StaffUtilities</a></li><li><a href="SupTechStats.html">SupTechStats</a></li><li><a href="UpdatesSupported.html">UpdatesSupported</a></li><li><a href="YearlyStats.html">YearlyStats</a></li></ul><h3>Global</h3><ul><li><a href="global.html#FIRST_STAFF_ROW">FIRST_STAFF_ROW</a></li><li><a href="global.html#LAST_STAFF_ROW">LAST_STAFF_ROW</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Tue Jul 14 2020 10:22:03 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Fri Feb 26 2021 09:13:36 GMT-0500 (Eastern Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

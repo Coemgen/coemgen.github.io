@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Namespace: StaffUtilities</title>
+    <title>JSDoc: Namespace: YearlyStats</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Namespace: StaffUtilities</h1>
+    <h1 class="page-title">Namespace: YearlyStats</h1>
 
     
 
@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2>StaffUtilities</h2>
+        <h2>YearlyStats</h2>
         
     
 </header>
@@ -70,7 +70,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="StaffUtilities.js.html">StaffUtilities.js</a>, <a href="StaffUtilities.js.html#line9">line 9</a>
+        <a href="YearlyStats.js.html">YearlyStats.js</a>, <a href="YearlyStats.js.html#line12">line 12</a>
     </li></ul></dd>
     
 
@@ -109,7 +109,7 @@
     
 
     
-    <h4 class="name" id="..getNameArr"><span class="type-signature">(static) </span>.getNameArr<span class="signature">(staffObjArr)</span><span class="type-signature"> &rarr; {Array.&lt;string>}</span></h4>
+    <h4 class="name" id=".getFolderAndFiles"><span class="type-signature">(static) </span>getFolderAndFiles<span class="signature">(yearStr)</span><span class="type-signature"> &rarr; {<a href="global.html#Year">Year</a>}</span></h4>
     
 
     
@@ -117,7 +117,7 @@
 
 
 <div class="description">
-    Get a sorted array of staff names from an array of staff objects
+    Returns a reference to the folder object, for the current year, and itsyearly OHS and Sup/Tech stats spreadsheets.  If the folder does notalready exist, a new one will be created and populated with a yearly OHSand Suppervisor/Tech stats spreadsheets.
 </div>
 
 
@@ -153,13 +153,13 @@
 
         <tr>
             
-                <td class="name"><code>staffObjArr</code></td>
+                <td class="name"><code>yearStr</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;<a href="global.html#UserData">UserData</a>></span>
+<span class="param-type">string</span>
 
 
             
@@ -169,7 +169,7 @@
 
             
 
-            <td class="description last">Array of UserData objects</td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -210,7 +210,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="StaffUtilities.js.html">StaffUtilities.js</a>, <a href="StaffUtilities.js.html#line106">line 106</a>
+        <a href="YearlyStats.js.html">YearlyStats.js</a>, <a href="YearlyStats.js.html#line185">line 185</a>
     </li></ul></dd>
     
 
@@ -238,10 +238,6 @@
 <h5>Returns:</h5>
 
         
-<div class="param-desc">
-    - A sorted array of name strings
-</div>
-
 
 
 <dl>
@@ -250,7 +246,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Array.&lt;string></span>
+<span class="param-type"><a href="global.html#Year">Year</a></span>
 
 
     </dd>
@@ -268,7 +264,7 @@
     
 
     
-    <h4 class="name" id="..getObjArr"><span class="type-signature">(static) </span>.getObjArr<span class="signature">(email)</span><span class="type-signature"> &rarr; {Array.&lt;<a href="global.html#UserData">UserData</a>>}</span></h4>
+    <h4 class="name" id=".monthlyUpdate"><span class="type-signature">(static) </span>monthlyUpdate<span class="signature">(yearlyStatsFile, yearlySupTechFile, codeMoveFile, month, yearMonthStr, yearStr)</span><span class="type-signature"> &rarr; {undefined}</span></h4>
     
 
     
@@ -276,7 +272,7 @@
 
 
 <div class="description">
-    Takes a Google Groups email then returns an array of objects includinggroup members' names and email addresses.
+    Populate yearly stats Spreadsheet's Weekend Days sheet with references tocells in the year's monthly data sheets.
 </div>
 
 
@@ -312,7 +308,99 @@
 
         <tr>
             
-                <td class="name"><code>email</code></td>
+                <td class="name"><code>yearlyStatsFile</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>yearlySupTechFile</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>codeMoveFile</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>month</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">0 to 11</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>yearMonthStr</code></td>
             
 
             <td class="type">
@@ -328,7 +416,30 @@
 
             
 
-            <td class="description last">Google Group Email</td>
+            <td class="description last">"Weekend Code Move Count YYYY-MM" format</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>yearStr</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
         </tr>
 
     
@@ -369,7 +480,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="StaffUtilities.js.html">StaffUtilities.js</a>, <a href="StaffUtilities.js.html#line76">line 76</a>
+        <a href="YearlyStats.js.html">YearlyStats.js</a>, <a href="YearlyStats.js.html#line227">line 227</a>
     </li></ul></dd>
     
 
@@ -397,10 +508,6 @@
 <h5>Returns:</h5>
 
         
-<div class="param-desc">
-    - Array of UserData objects
-</div>
-
 
 
 <dl>
@@ -409,166 +516,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Array.&lt;<a href="global.html#UserData">UserData</a>></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="..getStaffNameObj"><span class="type-signature">(static) </span>.getStaffNameObj<span class="signature">(mgrsStaffEmail)</span><span class="type-signature"> &rarr; {object}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Gets the names of all staff members in the given manager's group.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>mgrsStaffEmail</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">manager's Google Group for staff</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="StaffUtilities.js.html">StaffUtilities.js</a>, <a href="StaffUtilities.js.html#line119">line 119</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    - {"Firstname Lastname":true,...}
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">object</span>
+<span class="param-type">undefined</span>
 
 
     </dd>

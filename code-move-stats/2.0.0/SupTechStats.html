@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Namespace: Staff</title>
+    <title>JSDoc: Namespace: SupTechStats</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Namespace: Staff</h1>
+    <h1 class="page-title">Namespace: SupTechStats</h1>
 
     
 
@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2>Staff</h2>
+        <h2>SupTechStats</h2>
         
     
 </header>
@@ -70,7 +70,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="StaffUtilities.js.html">StaffUtilities.js</a>, <a href="StaffUtilities.js.html#line17">line 17</a>
+        <a href="SupTechStats.js.html">SupTechStats.js</a>, <a href="SupTechStats.js.html#line10">line 10</a>
     </li></ul></dd>
     
 
@@ -109,7 +109,7 @@
     
 
     
-    <h4 class="name" id="..getNameArr"><span class="type-signature">(static) </span>.getNameArr<span class="signature">(staffObjArr)</span><span class="type-signature"> &rarr; {Array.&lt;string>}</span></h4>
+    <h4 class="name" id=".getSpreadsheet"><span class="type-signature">(static) </span>getSpreadsheet<span class="signature">(yearFolder, yearStr)</span><span class="type-signature"> &rarr; {object}</span></h4>
     
 
     
@@ -117,7 +117,7 @@
 
 
 <div class="description">
-    Get a sorted array of staff names from an array of staff objects
+    Gets a SupTechStats spreadsheet for the given year
 </div>
 
 
@@ -153,13 +153,13 @@
 
         <tr>
             
-                <td class="name"><code>staffObjArr</code></td>
+                <td class="name"><code>yearFolder</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;<a href="global.html#UserData">UserData</a>></span>
+<span class="param-type">Object</span>
 
 
             
@@ -169,7 +169,30 @@
 
             
 
-            <td class="description last">Array of UserData objects</td>
+            <td class="description last">instance of class Folder</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>yearStr</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
         </tr>
 
     
@@ -210,7 +233,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="StaffUtilities.js.html">StaffUtilities.js</a>, <a href="StaffUtilities.js.html#line114">line 114</a>
+        <a href="SupTechStats.js.html">SupTechStats.js</a>, <a href="SupTechStats.js.html#line313">line 313</a>
     </li></ul></dd>
     
 
@@ -239,7 +262,7 @@
 
         
 <div class="param-desc">
-    - A sorted array of name strings
+    - instance of class File
 </div>
 
 
@@ -250,7 +273,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Array.&lt;string></span>
+<span class="param-type">object</span>
 
 
     </dd>
@@ -268,7 +291,7 @@
     
 
     
-    <h4 class="name" id="..getObjArr"><span class="type-signature">(static) </span>.getObjArr<span class="signature">(email)</span><span class="type-signature"> &rarr; {Array.&lt;<a href="global.html#UserData">UserData</a>>}</span></h4>
+    <h4 class="name" id=".yearlyInit"><span class="type-signature">(static) </span>yearlyInit<span class="signature">(yearlySupTechFile, yearStr)</span><span class="type-signature"> &rarr; {undefined}</span></h4>
     
 
     
@@ -276,8 +299,7 @@
 
 
 <div class="description">
-    Takes a Google Groups email then returns an array of objects including
-group members' names and email addresses.
+    Creates and initializes SupTechStats spreadsheet for the given year
 </div>
 
 
@@ -313,7 +335,30 @@ group members' names and email addresses.
 
         <tr>
             
-                <td class="name"><code>email</code></td>
+                <td class="name"><code>yearlySupTechFile</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">instance of class File</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>yearStr</code></td>
             
 
             <td class="type">
@@ -329,7 +374,7 @@ group members' names and email addresses.
 
             
 
-            <td class="description last">Google Group Email</td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -370,7 +415,7 @@ group members' names and email addresses.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="StaffUtilities.js.html">StaffUtilities.js</a>, <a href="StaffUtilities.js.html#line86">line 86</a>
+        <a href="SupTechStats.js.html">SupTechStats.js</a>, <a href="SupTechStats.js.html#line96">line 96</a>
     </li></ul></dd>
     
 
@@ -398,10 +443,6 @@ group members' names and email addresses.
 <h5>Returns:</h5>
 
         
-<div class="param-desc">
-    - Array of UserData objects
-</div>
-
 
 
 <dl>
@@ -410,7 +451,7 @@ group members' names and email addresses.
     </dt>
     <dd>
         
-<span class="param-type">Array.&lt;<a href="global.html#UserData">UserData</a>></span>
+<span class="param-type">undefined</span>
 
 
     </dd>
@@ -438,13 +479,13 @@ group members' names and email addresses.
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="InitCodeMoveTemplate.html">InitCodeMoveTemplate</a></li><li><a href="InitStatsTemplate.html">InitStatsTemplate</a></li><li><a href="MonthlyRun.html">MonthlyRun</a></li><li><a href="RestoreImportedData.html">RestoreImportedData</a></li><li><a href="Staff.html">Staff</a></li></ul><h3>Global</h3><ul><li><a href="global.html#FIRST_STAFF_ROW">FIRST_STAFF_ROW</a></li><li><a href="global.html#initCodeMoveTemplateMain">initCodeMoveTemplateMain</a></li><li><a href="global.html#initStatsTemplateMain">initStatsTemplateMain</a></li><li><a href="global.html#LAST_STAFF_ROW">LAST_STAFF_ROW</a></li><li><a href="global.html#monthlyRunMain">monthlyRunMain</a></li><li><a href="global.html#monthlyRunTest">monthlyRunTest</a></li><li><a href="global.html#restoreImportedDataMain">restoreImportedDataMain</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="CodeMoveCounts.html">CodeMoveCounts</a></li><li><a href="CsctMessages.html">CsctMessages</a></li><li><a href="Drivers.html">Drivers</a></li><li><a href="MonthlyRun.html">MonthlyRun</a></li><li><a href="SendEmail.html">SendEmail</a></li><li><a href="StaffUtilities.html">StaffUtilities</a></li><li><a href="SupTechStats.html">SupTechStats</a></li><li><a href="UpdatesSupported.html">UpdatesSupported</a></li><li><a href="YearlyStats.html">YearlyStats</a></li></ul><h3>Global</h3><ul><li><a href="global.html#FIRST_STAFF_ROW">FIRST_STAFF_ROW</a></li><li><a href="global.html#LAST_STAFF_ROW">LAST_STAFF_ROW</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Thu Apr 23 2020 11:07:10 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Fri Feb 26 2021 09:13:36 GMT-0500 (Eastern Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

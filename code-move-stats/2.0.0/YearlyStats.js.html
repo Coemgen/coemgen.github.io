@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: YearlyStats.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: YearlyStats.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*jslint browser:true, long:true, white:true*/
+/*global
+DriveApp, PropertiesService, SitesApp, SpreadsheetApp, SupTechStats
+*/
+
+/**
+ * @file Defines the &lt;code>&lt;b>YearlyStats&lt;/b>&lt;/code> module.
+ */
+
+/******************************************************************************/
+
+/**
+ * @namespace YearlyStats
+ */
+
+/**
+ * @typedef {Object} Year
+ * @property {Object} yearFolder - instance of class Folder
+ * @property {Object} yearlyStatsFile - instance of class File
+ * @property {Object} yearlySupTechFile - instance of class File
+ */
+
+// eslint-disable-next-line no-unused-vars
+const YearlyStats = (function (
+  DriveApp,
+  PropertiesService,
+  SitesApp,
+  SpreadsheetApp
+) {
+  "use strict";
+
+  /**
+   * Creates and returns a new yearly stats file object.  Also adds the stats
+   * file's url to the associated Google Site.
+   * @function addYearlyStatsFile
+   * @memberof YearlyStats
+   * @private
+   * @param {Object} yearlyStatsTemplate
+   * @param {string} yearStr
+   * @param {Object} yearFolder
+   * @returns {Object}
+   */
+  function addYearlyStatsFile(yearlyStatsTemplate, yearStr, yearFolder) {
+    const yearlyStatsFile = DriveApp.getFileById(
+      yearlyStatsTemplate.getId()
+    ).makeCopy(
+      "Weekend Days OHS Stat tracking information " + yearStr,
+      yearFolder
+    );
+    const site = SitesApp.getSiteByUrl(
+      PropertiesService.getScriptProperties().getProperty("googleSiteUrl")
+    );
+    const ohsStatsListPage = site.getChildByName("ohs-stats");
+    const urlLink = yearlyStatsFile.getUrl();
+    const urlName = yearStr + " OHS Stats";
+    const values = ['&lt;a href="' + urlLink + '">' + urlName + "&lt;/a>"];
+    // remove any existing links for the current year
+    ohsStatsListPage
+      .getListItems()
+      .filter(
+        (row) =>
+          row.getValueByName("Spreadsheet Links").match(/>([^&lt;]+)/)[1] ===
+          urlName
+      )
+      .forEach((link) => link.deleteListItem());
+    // add current year to list
+    ohsStatsListPage.addListItem(values);
+
+    return yearlyStatsFile;
+  }
+
+  /**
+   * Formula used for Supervisor/Tech Stats cells on the Yearly Stats
+   * Spreadsheet's Weekend Days sheet.
+   * @function getTechFormula
+   * @memberof YearlyStats
+   * @private
+   * @param {string} yearStr
+   * @param {number} month
+   * @param {number} rowNum
+   * @param {string} colLetter
+   */
+  function getTechFormula(yearStr, month, rowNum, colLetter) {
+    const year = Number(yearStr);
+    return (
+      `=IF(TODAY()>=Date(${year},${month},1),` +
+      `IFERROR('Imported Data'!${colLetter}${rowNum},0),"")`
+    );
+  }
+
+  /**
+   * Adds formulas for Supervisor/Tech stats to the Yearly Stats Spreadsheet's
+   * Weekend Days sheet.
+   * @function addSupTechFormulas
+   * @memberof YearlyStats
+   * @private
+   * @param {Object} yearlyStatsSs
+   * @param {string} yearStr
+   */
+  function addSupTechFormulas(yearlyStatsSs, yearStr) {
+    const weekendDaysSheet = yearlyStatsSs.getSheetByName("Weekend Days");
+
+    Array.from({
+      length: 12,
+    }).forEach((ignore, index) => {
+      const colLetter = String.fromCharCode(66 + index);
+      const month = index + 1;
+      // 30 'Imported Data'!B53 Magic Updates supported
+      weekendDaysSheet
+        .getRange(`${colLetter}30`)
+        .setFormula(getTechFormula(yearStr, month, 53, colLetter));
+      // 31 'Imported Data'!B54 CS Updates supported
+      weekendDaysSheet
+        .getRange(`${colLetter}31`)
+        .setFormula(getTechFormula(yearStr, month, 54, colLetter));
+      // 32 'Imported Data'!B55 Expanse Updates supported
+      weekendDaysSheet
+        .getRange(`${colLetter}32`)
+        .setFormula(getTechFormula(yearStr, month, 55, colLetter));
+      // 35 'Imported Data'!B56 UWI code moves
+      weekendDaysSheet
+        .getRange(`${colLetter}35`)
+        .setFormula(getTechFormula(yearStr, month, 56, colLetter));
+      // 36 'Imported Data'!B52 Tech code moves
+      weekendDaysSheet
+        .getRange(`${colLetter}36`)
+        .setFormula(getTechFormula(yearStr, month, 52, colLetter));
+      // 42 'Imported Data'!B$49 Maintenance/Downtime projects
+      weekendDaysSheet
+        .getRange(`${colLetter}42`)
+        .setFormula(getTechFormula(yearStr, month, 49, colLetter));
+      // 43 'Imported Data'!B$40 CSCT Messages
+      weekendDaysSheet
+        .getRange(`${colLetter}43`)
+        .setFormula(getTechFormula(yearStr, month, 40, colLetter));
+      // 44 'Imported Data'!B$42 Development Projects
+      weekendDaysSheet
+        .getRange(`${colLetter}44`)
+        .setFormula(getTechFormula(yearStr, month, 42, colLetter));
+      // 45 'Imported Data'!B$46 Large Scale Projects
+      weekendDaysSheet
+        .getRange(`${colLetter}45`)
+        .setFormula(getTechFormula(yearStr, month, 46, colLetter));
+      // 46 'Imported Data'!B$41 Data Recoveries
+      weekendDaysSheet
+        .getRange(`${colLetter}46`)
+        .setFormula(getTechFormula(yearStr, month, 41, colLetter));
+      // 47 'Imported Data'!B$43 Health Check - Post Downtime
+      weekendDaysSheet
+        .getRange(`${colLetter}47`)
+        .setFormula(getTechFormula(yearStr, month, 43, colLetter));
+      // 48 'Imported Data'!B$44 Health Check Resolution
+      weekendDaysSheet
+        .getRange(`${colLetter}48`)
+        .setFormula(getTechFormula(yearStr, month, 44, colLetter));
+      // 49 'Imported Data'!B$48 MaaS
+      weekendDaysSheet
+        .getRange(`${colLetter}49`)
+        .setFormula(getTechFormula(yearStr, month, 48, colLetter));
+      // 50 'Imported Data'!B$47 LIVE tasks support
+      weekendDaysSheet
+        .getRange(`${colLetter}50`)
+        .setFormula(getTechFormula(yearStr, month, 47, colLetter));
+      // 51 'Imported Data'!B$51 Stipend/Non Stipend
+      weekendDaysSheet
+        .getRange(`${colLetter}51`)
+        .setFormula(getTechFormula(yearStr, month, 51, colLetter));
+      // 52 'Imported Data'!B$39 6.x pathway code deliveries
+      weekendDaysSheet
+        .getRange(`${colLetter}52`)
+        .setFormula(getTechFormula(yearStr, month, 39, colLetter));
+      // 53 'Imported Data'!B$45 Infrastructure projects
+      weekendDaysSheet
+        .getRange(`${colLetter}53`)
+        .setFormula(getTechFormula(yearStr, month, 45, colLetter));
+      // 54 'Imported Data'!B$50 Scheduled projects
+      weekendDaysSheet
+        .getRange(`${colLetter}54`)
+        .setFormula(getTechFormula(yearStr, month, 50, colLetter));
+    });
+
+    return undefined;
+  }
+
+  /**
+   * Returns a reference to the folder object, for the current year, and its
+   * yearly OHS and Sup/Tech stats spreadsheets.  If the folder does not
+   * already exist, a new one will be created and populated with a yearly OHS
+   * and Suppervisor/Tech stats spreadsheets.
+   * @function getFolderAndFiles
+   * @memberOf YearlyStats
+   * @param {string} yearStr
+   * @returns {Year}
+   */
+  function getFolderAndFiles(yearStr) {
+    // get Yearly OHS Stats template ID
+    const yearlyStatsTemplate = SpreadsheetApp.openById(
+      PropertiesService.getScriptProperties().getProperty(
+        "yearlyStatsTemplateId"
+      )
+    );
+    // find root folder
+    const dataFolder = DriveApp.getFolderById(
+      PropertiesService.getScriptProperties().getProperty("dataFolderId")
+    );
+    const folderIterator = dataFolder.getFoldersByName(yearStr);
+    const yearFolder =
+      folderIterator.hasNext() === true
+        ? folderIterator.next()
+        : dataFolder.createFolder(yearStr);
+    // get yearly OHS Stats file
+    let fileIterator = yearFolder.getFilesByName(
+      "Weekend Days OHS Stat tracking information " + yearStr
+    );
+    const yearlyStatsFile =
+      fileIterator.hasNext() === true
+        ? fileIterator.next()
+        : addYearlyStatsFile(yearlyStatsTemplate, yearStr, yearFolder);
+    // get yearly Supervisor/Tech Logs file
+    const yearlySupTechFile = SupTechStats.getSpreadsheet(yearFolder, yearStr);
+    const yearlyStatsSs = SpreadsheetApp.openById(yearlyStatsFile.getId());
+    // add formulas linking Weekend Days sheet sup/tech #'s to Imported Data
+    addSupTechFormulas(yearlyStatsSs, yearStr);
+    return [yearFolder, yearlyStatsFile, yearlySupTechFile];
+  }
+
+  /**
+   * Populate yearly stats Spreadsheet's Weekend Days sheet with references to
+   * cells in the year's monthly data sheets.
+   * @function monthlyUpdate
+   * @memberOf YearlyStats
+   * @param {Object} yearlyStatsFile
+   * @param {Object} yearlySupTechFile
+   * @param {Object} codeMoveFile
+   * @param {number} month - 0 to 11
+   * @param {string} yearMonthStr - "Weekend Code Move Count YYYY-MM" format
+   * @param {string} yearStr
+   * @returns {undefined}
+   */
+  function monthlyUpdate(
+    yearlyStatsFile,
+    yearlySupTechFile,
+    codeMoveFile,
+    month,
+    yearMonthStr,
+    yearStr
+  ) {
+    const spreadsheet = SpreadsheetApp.openById(yearlyStatsFile.getId());
+    const importedDataSheet = spreadsheet.getSheetByName("Imported Data");
+    const row = 2;
+    const column = month + 2;
+    const colChar = String.fromCharCode(66 + month);
+    const formula = "=IMPORTRANGE(" + colChar + '2,"Totals!AD1:AD36")';
+
+    spreadsheet
+      .getSheetByName("Weekend Days")
+      .getRange("A1")
+      .setValue("Weekend Days OHS Stats " + yearMonthStr.slice(24, 28));
+
+    importedDataSheet.getRange(row, column).setValue(codeMoveFile.getUrl());
+    importedDataSheet.getRange(row + 1, column).setFormula(formula);
+    // yearlySupTechFile to yearlyStats sheet
+    importedDataSheet
+      .getRange("B39")
+      .setFormula(
+        `=IMPORTRANGE("${yearlySupTechFile.getUrl()}}","Index!B2:M19")`
+      );
+
+    return undefined;
+  }
+
+  return Object.freeze({
+    getFolderAndFiles,
+    monthlyUpdate,
+  });
+})(DriveApp, PropertiesService, SitesApp, SpreadsheetApp);
+
+/******************************************************************************/
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="CodeMoveCounts.html">CodeMoveCounts</a></li><li><a href="CsctMessages.html">CsctMessages</a></li><li><a href="Drivers.html">Drivers</a></li><li><a href="MonthlyRun.html">MonthlyRun</a></li><li><a href="SendEmail.html">SendEmail</a></li><li><a href="StaffUtilities.html">StaffUtilities</a></li><li><a href="SupTechStats.html">SupTechStats</a></li><li><a href="UpdatesSupported.html">UpdatesSupported</a></li><li><a href="YearlyStats.html">YearlyStats</a></li></ul><h3>Global</h3><ul><li><a href="global.html#FIRST_STAFF_ROW">FIRST_STAFF_ROW</a></li><li><a href="global.html#LAST_STAFF_ROW">LAST_STAFF_ROW</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Fri Feb 26 2021 09:13:36 GMT-0500 (Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
