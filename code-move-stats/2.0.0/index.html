@@ -63,7 +63,7 @@
     <div class="container-overview">
     
         
-            <div class="description">Defines driver functions for running public methods.<p>Google Script Project values must be set for the following<a href="https://developers.google.com/apps-script/reference/properties/properties">script properties</a>:<ul> <li><b>autmGroupEmail</b>&nbsp;&ndash;@nbsp;Autm group emails are searchedfor updates supported messages</li> <li><b>codeMoveTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id for the montly totals template</li> <li><b>csctGroupEmail</b>&nbsp;&ndash;@nbsp;CSCT group emails are searchedfor CSCT messages</li> <li><b>dataFolderId</b>&nbsp;&ndash;&nbsp;the parent folder for yearly data folders</li> <li><b>deliveriesSpreadsheetId</b>&nbsp;&ndash;&nbsp;the C/S to 6.x Pathway Infospreadsheet</li> <li><b>distributionType</b>&nbsp;&ndash;&nbsp;Email distribution type (values are: <b>live</b> or <b>test</b>)</li> <li><b>googleSiteUrl</b>&nbsp;&ndash;&nbsp;the url for the project'sassociated Google Site</li> <li><b>groupEmail</b>&nbsp;&ndash;&nbsp;the Google Group email addressassociated with this project</li> <li><b>managerEmail</b>&nbsp;&ndash;&nbsp;the group manager's email address </li> <li><b>mgrsStaffEmail</b>&nbsp;&ndash;&nbsp;the group manager's email address used for addressing all the manager's staff</li> <li><b>secretaryEmail</b>&nbsp;&ndash;&nbsp;the email address for thegroup's secretary's secretary</li> <li><b>mgrsDirectsEmail</b>&nbsp;&ndash;&nbsp;the Google Group email addressfor the group's supervisors</li> <li><b>techEmails</b>&nbsp;&ndash;&nbsp;the Google Group email address forthe group's tech staff</li> <li><b>testers</b>&nbsp;&ndash;&nbsp;the email addresses for Weekend Statstesters</li> <li><b>yearlyStatsTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id forthe yearly stats template</li> <li><b>yearlySupTechTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id forthe Supervisor/Tech stats spreadsheet template</li></ul><p>Run the script using the <a href="https://developers.google.com/apps-script/guides/v8-runtime">V8 Runtime</a>.</div>
+            <div class="description">Defines driver functions for running public methods.<p>Google Script Project values must be set for the following<a href="https://developers.google.com/apps-script/reference/properties/properties">script properties</a>:<ul> <li><b>autmGroupEmail</b>&nbsp;&ndash;&nbsp;Autm group emails are searchedfor updates supported messages</li> <li><b>codeMoveTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id for the montly totals template</li> <li><b>csctGroupEmail</b>&nbsp;&ndash;&nbsp;CSCT group emails are searchedfor CSCT messages</li> <li><b>dataFolderId</b>&nbsp;&ndash;&nbsp;the parent folder for yearly data folders</li> <li><b>deliveriesSpreadsheetId</b>&nbsp;&ndash;&nbsp;the C/S to 6.x Pathway Infospreadsheet</li> <li><b>distributionType</b>&nbsp;&ndash;&nbsp;Email distribution type (values are: <b>live</b> or <b>test</b>)</li> <li><b>googleSiteUrl</b>&nbsp;&ndash;&nbsp;the url for the project'sassociated Google Site</li> <li><b>groupEmail</b>&nbsp;&ndash;&nbsp;the Google Group email addressassociated with this project</li> <li><b>managerEmail</b>&nbsp;&ndash;&nbsp;the group manager's email address </li> <li><b>mgrsStaffEmail</b>&nbsp;&ndash;&nbsp;the group manager's email address used for addressing all the manager's staff</li> <li><b>secretaryEmail</b>&nbsp;&ndash;&nbsp;the email address for thegroup's secretary's secretary</li> <li><b>mgrsDirectsEmail</b>&nbsp;&ndash;&nbsp;the Google Group email addressfor the group's supervisors</li> <li><b>techEmails</b>&nbsp;&ndash;&nbsp;the Google Group email address forthe group's tech staff</li> <li><b>testers</b>&nbsp;&ndash;&nbsp;the email addresses for Weekend Statstesters</li> <li><b>yearlyStatsTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id forthe yearly stats template</li> <li><b>yearlySupTechTemplateId</b>&nbsp;&ndash;&nbsp;the spreadsheet id forthe Supervisor/Tech stats spreadsheet template</li></ul><p>Run the script using the <a href="https://developers.google.com/apps-script/guides/v8-runtime">V8 Runtime</a>.</div>
         
 
         
@@ -156,7 +156,7 @@
     <div class="container-overview">
     
         
-            <div class="description">Defines the <code><b>CodeMoveCounts</b></code> module.</div>
+            <div class="description">Defines the <code><b>CodeMoveCounts</b></code> module.  This module hasfunctions for building, initializing, and getting Code Move Counts data entryspreadsheets.</div>
         
 
         
@@ -240,6 +240,99 @@
 
 <header>
     
+        <h2>CsctMessages.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">Defines the <code><b>CsctMessages</b></code> module.  This module hasfunctions for gathering group CSCT information and entering that informationinto the current Supervisor/Tech Stats spreadsheet.Set up a weekly <a href="https://developers.google.com/apps-script/guides/triggers/installable">Trigger</a>for CsctMessages.main() to automatically gather CSCT stats.</div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="CsctMessages.js.html">CsctMessages.js</a>, <a href="CsctMessages.js.html#line14">line 14</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
         <h2>MonthlyRun.js</h2>
         
     
@@ -249,7 +342,7 @@
     <div class="container-overview">
     
         
-            <div class="description">Defines the <code><b>MonthlyRun</b></code> module.</div>
+            <div class="description">Defines the <code><b>MonthlyRun</b></code> module.  This module hasfunctions for setting up spreadsheets used for tallying and viewing groupstats.Set up a monthly <a href="https://developers.google.com/apps-script/guides/triggers/installable">Trigger</a>for MonthlyRun.main() to automatically build stats spreadsheets.</div>
         
 
         
@@ -342,7 +435,7 @@
     <div class="container-overview">
     
         
-            <div class="description">Defines the <code><b>SendEmail</b></code> module.  This module buildsand sends emails.  Create a script trigger to periodically run the <code><b>SendEmail.main()</b></code> function via a driver function.<p>Before using this module, values must be set for these {@linkcodehttps://developers.google.com/apps-script/guides/propertiesscript properties}:<ul> <li><b>distributionType</b>&nbsp;&ndash;&nbsp;Email distribution type (values are: <b>live</b> or <b>test</b>)</li> <li><b>groupEmail</b>&nbsp;&ndash;&nbsp;the Google Group email associated with this project</li></ul></div>
+            <div class="description">Defines the <code><b>SendEmail</b></code> module.  This module buildsand sends emails.  Create a script trigger to periodically run the <code><b>SendEmail.main()</b></code> function via a driver function.<p>Before using this module, values must be set for these <a href="https://developers.google.com/apps-script/guides/properties">script properties</a><ul> <li><b>distributionType</b>&nbsp;&ndash;&nbsp;Email distribution type (values are: <b>live</b> or <b>test</b>)</li> <li><b>groupEmail</b>&nbsp;&ndash;&nbsp;the Google Group email associated with this project</li></ul></div>
         
 
         
@@ -621,6 +714,99 @@
 
 <header>
     
+        <h2>UpdatesSupported.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">Defines the <code><b>UpdatesSupported</b></code> module.  This modulehas functions for gathering group Updates information and entering thatinformation into the current Supervisor/Tech Stats spreadsheet.Set up a weekly <a href="https://developers.google.com/apps-script/guides/triggers/installable">Trigger</a>for UpdatesSupported.main() to automatically gather Updates Supported stats.</div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="UpdatesSupported.js.html">UpdatesSupported.js</a>, <a href="UpdatesSupported.js.html#line51">line 51</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
         <h2>YearlyStats.js</h2>
         
     
@@ -630,7 +816,7 @@
     <div class="container-overview">
     
         
-            <div class="description">Defines the <code><b>YearlyStats</b></code> module.</div>
+            <div class="description">Defines the <code><b>YearlyStats</b></code> module.  This module hasfunctions for building, initializing, and getting Yearly Stats spreadsheetsfor viewing a summary of group stats.</div>
         
 
         
@@ -716,7 +902,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Mon Mar 01 2021 04:45:14 GMT-0500 (Eastern Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Mon Mar 01 2021 08:39:15 GMT-0500 (Eastern Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
