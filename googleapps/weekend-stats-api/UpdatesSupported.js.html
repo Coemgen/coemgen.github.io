@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: UpdatesSupported.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: UpdatesSupported.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/* eslint-disable max-len */
+/* eslint-disable max-statements */
+/*jslint browser:true, long:true, white:true*/
+/*global GmailApp, PropertiesService, SpreadsheetApp, SupTechStats*/
+
+/**************************************************************************
+Functions specifically for Kristen Allfrey's/Brett's Updates Supported Stats
+
+Updates Supported
+ - Columns: Site Event Platform Day of Week Date Time Email Address Timestamp Release
+ - Only care if the update occurred, we don't need a task, something that happened on our shift
+ - Review AUTM Google Group - 12 week summary
+    * Pull in any data from the table
+    * Anything that's scheduled for the next upcoming weekend (Email is generated every Friday at midnight-ish)
+
+Code Authors
+ - Burns, James E
+ - Griffin, Kevin
+
+Involved Users
+ - Porter, Brett &amp; Kristen Allfrey
+
+ Script Properties
+- Template Google Sheet ID: 1hLJ-qszWhQ-Cws96c0sXUvrckRR8IjEwdA1DW-VYQqU
+- Template Google Sheet Sheet ID for 'Index': 1608334772
+
+
+Sheet Check: File, Sheet, &amp; Range Protections
+Sheet Check: Conditional Formatting
+Sheet Check: Data Validation
+Sheet Check: Cell Formulas
+Sheet Check: Default Text
+Sheet Check: Layout
+Sheet Check: Style
+
+Unanswered Questions by Sheet:
+------------------------------
+
+Tasks
+-----
+Prevent duplicate sheet records (from being appended to the sheet; check sheet first if a record needs to be updated)
+
+2020.09.26
+ Prevent duplicates (from AUTM Table; One may have a coordinator and the other not; Take the one with the most information/merge)
+ Create a task link (=HYPERLINK) when appending to the spreadsheet sheet
+
+
+
+**************************************************************************/
+
+/**
+ * @file Defines the &lt;code>&lt;b>UpdatesSupported&lt;/b>&lt;/code> module.  This module
+ * has functions for gathering group Updates information and entering that
+ * information into the current Supervisor/Tech Stats spreadsheet.
+ * Set up a weekly [Trigger]{@linkcode https://developers.google.com/apps-script/guides/triggers/installable}
+ * for UpdatesSupported.main() to automatically gather Updates Supported stats.
+ */
+
+/**
+ * @namespace UpdatesSupported
+ */
+
+// eslint-disable-next-line no-unused-vars
+const UpdatesSupported = (function (
+  GmailApp,
+  PropertiesService,
+  SpreadsheetApp
+) {
+  "use strict";
+
+  function getPreviousFridayDate() {
+    // Date > Day index is 0-based:
+    //  0 = Sunday, 1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday
+
+    var today, intDotW, intDaysToSubtract;
+    today = new Date();
+    intDotW = today.getDay();
+
+    intDaysToSubtract = intDotW + 2;
+    // If Saturday (6), minus 6 to get to Sunday and minus 2 more to get to Friday (Total: 9 days)
+    // Idea is that we are doing this for the previous Friday, so we need to identify the last Sunday.
+
+    today.setDate(today.getDate() - intDaysToSubtract);
+
+    var strDateFormat;
+    strDateFormat = today.getFullYear()
+      + "/"
+      + (today.getMonth() + 1)
+      + "/"
+      + today.getDate();
+
+    return strDateFormat;
+  }
+
+  function shouldBeIncluded(dataRow) {
+    // 0: Site
+    // 1: Master Task
+    // 2: Name
+    // 3: Date
+    // 4: Day
+    // 5: Start (Time)
+    // 6: Release
+    // 7: Update Type
+    // 8: Resp Group
+    // 9: Rgn
+    // 10: Conf
+    // 11: Coordinator
+    // 12: Hosted
+    // 13: Hrdwre
+    // 14: MPM
+
+    var vDate = dataRow[3];
+    var vDay = dataRow[4];
+    var vTime = dataRow[5];
+
+    // Invalid: Not a weekend day (Fri-Mon)
+    if (vDay == "Tuesday" || vDay == "Wednesday" || vDay == "Thursday")
+      return false; // IF not a weekend day, skip
+
+    // Invalid: Item's date/time is not set for a past date (future dates may change)
+    var d1 = new Date(); // Today
+    d1.setHours("00", "00"); // Midnight
+
+    var d2 = new Date(vDate);
+    var hours2 = vTime.substr(0, vTime.indexOf(":"));
+    var minutes2 = vTime.substr(vTime.indexOf(":") + 1, 2);
+    var ampm2 = vTime.indexOf("a") > -1 || vTime.indexOf("m") > -1 ? "AM" : "PM";
+    var adjHours2 = hours2 == 12 &amp;&amp; ampm2 == "AM"
+      ? "00"
+      : hours2 &lt; 12 &amp;&amp; ampm2 == "PM"
+      ? 12 + parseInt(hours2)
+      : hours2;
+
+    d2.setHours(adjHours2, minutes2);
+
+    if (d1 &lt; d2) return false; // If the today is earlier than the scheduled date, skip
+
+    return true;
+  }
+
+  function filterDuplicates(tableData) {
+    // tableData = [[...],[...],...]
+    // 0: Site
+    // 1: Master Task
+    // 2: Name
+    // 3: Date
+    // 4: Day
+    // 5: Start (Time)
+    // 6: Release
+    // 7: Update Type
+    // 8: Resp Group
+    // 9: Rgn
+    // 10: Conf
+    // 11: Coordinator
+    // 12: Hosted
+    // 13: Hrdwre
+    // 14: MPM
+
+    var sSite, sEvent, sDate, sDay, sTime, sRelease, sTask;
+    var tSite, tEvent, tDate, tDay, tTime, tRelease, tTask;
+
+    for (var x = 0; x &lt; tableData.length; x++) {
+      var xAutm = tableData[x];
+
+      sSite = xAutm[0];
+      sTask = xAutm[1];
+      sDate = xAutm[3];
+      sDay = xAutm[4];
+      sTime = xAutm[5];
+      sRelease = xAutm[6];
+
+      for (var y = tableData.length - 1; y > x; y--) {
+        var yAutm = tableData[y];
+
+        tSite = yAutm[0];
+        tTask = yAutm[1];
+        tDate = yAutm[3];
+        tDay = yAutm[4];
+        tTime = yAutm[5];
+        tRelease = yAutm[6];
+
+        if (
+          x !== y
+          &amp;&amp; sSite == tSite
+          &amp;&amp; sEvent == tEvent
+          &amp;&amp; sDate == tDate
+          &amp;&amp; sDay == tDay
+          &amp;&amp; sTime == tTime
+          &amp;&amp; sRelease == tRelease
+          &amp;&amp; sTask == tTask
+        ) {
+          tableData.splice(y, 1);
+        }
+      }
+    }
+
+    return tableData;
+  }
+
+  function extractRowDataFromHtmlTable(tableData) {
+    // 1.) Split by Line feed
+    // 2.) Remove all those that don't start with '&lt;td'
+    // 3.) Re-map array to data within &lt;td>&lt;/td>
+    // 4.) Based on the number of columns rebuild data rows [row][column]
+
+    var tableDataTd = tableData.split("\n");
+    tableDataTd = tableDataTd.filter((line) => line.indexOf("&lt;td") == 0);
+
+    tableDataTd = tableDataTd.map(function (val) {
+      var capture = />(.+)&lt;/.exec(val);
+      if (capture == null) {
+        return "";
+      } else {
+        return capture[1];
+      }
+    });
+
+    var tableDataRowsRebuilt = [];
+
+    for (var i = 0; i &lt; tableDataTd.length; i = i + 15) {
+      var rowValues = [];
+
+      for (var c = 0; c &lt; 15; c++) rowValues.push(tableDataTd[i + c]);
+
+      if (shouldBeIncluded(rowValues)) tableDataRowsRebuilt.push(rowValues);
+    }
+
+    return tableDataRowsRebuilt;
+  }
+
+  function checkSheetForExistingRecordsAndFilterArrayTwo(
+    tableDataRows,
+    type,
+    years,
+    files
+  ) {
+    var file, spreadsheet, sheet, sheetData;
+    var sRowIndex,
+      sRow,
+      sSite,
+      sEvent,
+      sDate,
+      sDay,
+      sTime,
+      sRelease,
+      sTask;
+    var tRowIndex,
+      tRow,
+      tSite,
+      tEvent,
+      tDate,
+      tDay,
+      tTime,
+      tRelease,
+      tTask;
+    var sDateMonth, sDateDay, sDateYear;
+
+    for (var x = 0; x &lt; files.length; x++) {
+      file = files[x];
+      spreadsheet = SpreadsheetApp.openById(file.getId());
+      sheet = spreadsheet.getSheetByName("Updates Supported");
+      sheetData = sheet.getDataRange().getValues();
+
+      // Skip header rows in Sheet
+      for (
+        sRowIndex = 2; sRowIndex &lt; sheetData.length &amp;&amp; tableDataRows.length > 0; sRowIndex++
+      ) {
+        sRow = sheetData[sRowIndex];
+        sSite = sRow[1];
+        sEvent = sRow[2];
+        sDate = new Date(sRow[3]);
+        sDay = sRow[4];
+        sTime = sRow[5];
+        sRelease = sRow[7];
+        sTask = sRow[8];
+        //sSource = sRow[9];
+
+        sDateMonth = sDate.getMonth() + 1 &lt; 10
+          ? "0" + (sDate.getMonth() + 1)
+          : sDate.getMonth() + 1;
+        sDateDay = sDate.getDate();
+        sDateYear = sDate.getFullYear().toString().substr(-2);
+        sDate = sDateMonth + "/" + sDateDay + "/" + sDateYear; // Modify date to be same format as tableData
+
+        //sRowCompare = [sSite, sEvent, sDate, sDay, sTime, sRelease, sTask];
+
+        for (
+          tRowIndex = tableDataRows.length - 1; tRowIndex >= 0; tRowIndex--
+        ) {
+          tRow = tableDataRows[tRowIndex];
+          tSite = tRow[0];
+          tEvent = type;
+          tDate = tRow[3];
+          tDay = tRow[4];
+          tTime = tRow[5];
+          tRelease = tRow[6];
+          tTask = tRow[1];
+          //tSource = sRow[9];
+          //tRowCompare = [tSite, tEvent, tDate, tDay, tTime, tRelease, tTask];
+
+          if (
+            sSite == tSite
+            &amp;&amp; sEvent == tEvent
+            &amp;&amp; sDate == tDate
+            &amp;&amp; sDay == tDay
+            &amp;&amp; sTime == tTime
+            &amp;&amp; sRelease == tRelease
+            &amp;&amp; sTask == tTask
+          ) {
+            tableDataRows.splice(tRowIndex, 1); // Removes the record from array
+          }
+        }
+      }
+    }
+
+    return tableDataRows;
+  }
+
+  function addUpdatesToSpreadsheetTwo(tableData, type, years, files) {
+    var file, spreadsheet, sheet, iYear;
+    var vSite,
+      vTask,
+      vDate,
+      vDay,
+      vTime,
+      vRelease;
+    var rowData, vPlatform, vSource;
+    var cDate = new Date();
+    var cYear = cDate.getFullYear();
+    var cMonth = cDate.getMonth() + 1 &lt; 10
+      ? "0" + (cDate.getMonth() + 1)
+      : cDate.getMonth() + 1;
+    var cDay = cDate.getDate();
+
+    var strDate = cYear + "-" + cMonth + "-" + cDay;
+
+    for (var i = 0; i &lt; tableData.length; i++) {
+      rowData = tableData[i];
+      vSite = rowData[0];
+      vTask = rowData[1];
+      vDate = rowData[3];
+      vDay = rowData[4];
+      vTime = rowData[5];
+      vRelease = rowData[6];
+
+      vPlatform = ""; // Not given from table.
+
+      if (vRelease.indexOf("2.2") == 0) vPlatform = "Expanse";
+
+      if (vRelease.indexOf("2.1") == 0) vPlatform = "Expanse";
+
+      if (vRelease.indexOf("6.15") == 0) vPlatform = "6.15";
+
+      if (vRelease.indexOf("6.08") == 0) vPlatform = "6.08";
+
+      // Cannot determine MG or CS platform if release is 5.xx as they use the same numbering system.
+
+      vSource = "Script/AUTM";
+
+      iYear = years.indexOf(new Date(vDate).getFullYear());
+      file = files[iYear];
+      spreadsheet = SpreadsheetApp.openById(file.getId());
+      sheet = spreadsheet.getSheetByName("Updates Supported");
+
+      //                 A      B      C     D      E     F      G          H         I       J
+      sheet.appendRow([
+        strDate,
+        vSite,
+        type,
+        vDate,
+        vDay,
+        vTime,
+        vPlatform,
+        vRelease,
+        vTask,
+        vSource,
+      ]);
+
+      // Get last row, and update Task (I) to be a hyperlink
+      var vFormulaTaskHyperlink = "=HYPERLINK(\"https://cswebtools.meditech.com/tasks/view?taskID="
+        + vTask
+        + "\","
+        + vTask
+        + ")";
+      sheet
+        .getRange("I" + sheet.getLastRow())
+        .setFormula(vFormulaTaskHyperlink);
+    }
+  }
+
+  function processEmailMessage(message) {
+    var body = message.getBody().trim();
+
+    var tableDataLive = /&lt;h4>LIVE Updates&lt;\/h4>\s+(&lt;table(.|\s)+?&lt;\/table>)/.exec(
+      body
+    )[1];
+    var tableDataTest = /&lt;h4>TEST Updates&lt;\/h4>\s+(&lt;table(.|\s)+?&lt;\/table>)/.exec(
+      body
+    )[1];
+
+    var tableDataLiveRows = extractRowDataFromHtmlTable(tableDataLive); // Array is reset
+    var tableDataTestRows = extractRowDataFromHtmlTable(tableDataTest); // Array is reset
+
+    return [tableDataLiveRows, tableDataTestRows];
+  }
+
+  function getYearsAndFiles(tableData) {
+    var Years = [],
+      Files = [];
+    for (var i = 0; i &lt; tableData.length; i++) {
+      var iYear = new Date(tableData[i][3]).getFullYear();
+      if (!Years.includes(iYear)) {
+        var iFile, newIFile;
+        // eslint-disable-next-line no-unused-vars
+        [iFile, newIFile] = SupTechStats.getDataFile(undefined, iYear.toString());
+        Years.push(iYear);
+        Files.push(iFile);
+      }
+    }
+
+    return [Years, Files];
+  }
+
+  /**
+   * Process Gmail inbox email messages for sheet data and populate sheet
+   * Run UpdatesSupported.main()
+   * @function main
+   * @memberof InitCodeMoveTemplate
+   * @public
+   * @returns {undefined}
+   */
+  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line max-statements
+  function main() {
+    // jshint ignore:line
+
+    // Dependency: Google Sheet ID for Supervisor/Tech Stats Template SANDBOX (Stored in Script Properties; Different for SANDBOX and LIVE)
+    //const spreadsheet = SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty("SupervisorTechStatsTemplateID"));
+
+    // 1.) Build GmailApp Search Query to get Gmail Threads > Messages > Message Body content for scraping
+    // 2.) Parse Email Message Body content, filter out invalid or duplicate records
+    // 3.) Add to spreadsheet, filter out sheet existing record entries
+
+    var strSender, strSubject, strAfterDate, strSearchQuery;
+    strSender = PropertiesService.getScriptProperties().getProperty(
+      "autmGroupEmail"
+    );
+    strSubject = "Upcoming Update Summary Weekends";
+    strAfterDate = getPreviousFridayDate();
+    strSearchQuery = "from:("
+      + strSender
+      + ") subject:("
+      + strSubject
+      + ") after:"
+      + strAfterDate;
+    // EX: from:(autm-automated-emails-group@meditech.com) subject:(Upcoming Update Summary Weekends) after:2020/9/18
+
+    // DEBUG:
+    //strSearchQuery = "from:(" + strSender + ") subject:(" + strSubject + ") after:2021/1/1";
+    //Logger.log("Query: " + strSearchQuery);
+
+    var threads = GmailApp.search(strSearchQuery, 0, 2); // search(query, start, max) // returns GmailThread[] - do a max of 2 in case it's Friday and two email threads are available.
+
+    var tableDataLiveRows = [];
+    var tableDataTestRows = [];
+    var tempTableDataLiveRows, tempTableDataTestRows;
+
+    for (var thread = 0; thread &lt; threads.length; thread++) {
+      var messages = threads[thread].getMessages(); // returns GmailMessage[]
+      var message = messages[0];
+
+      [tempTableDataLiveRows, tempTableDataTestRows] = processEmailMessage(
+        message
+      ); // temp arrays are reset per message.
+
+      // Add temp to real table data structure
+      for (var i = 0; i &lt; tempTableDataLiveRows.length; i++)
+        tableDataLiveRows.push(tempTableDataLiveRows[i]);
+
+      for (i = 0; i &lt; tempTableDataTestRows.length; i++)
+        tableDataTestRows.push(tempTableDataTestRows[i]);
+    }
+
+    // Filter out duplicate or near duplicate rows
+    tableDataLiveRows = filterDuplicates(tableDataLiveRows);
+    tableDataTestRows = filterDuplicates(tableDataTestRows);
+
+    // Get the Year and respective file
+    var liveYears = [],
+      liveFiles = [];
+    var testYears = [],
+      testFiles = [];
+
+    [liveYears, liveFiles] = getYearsAndFiles(tableDataLiveRows);
+    [testYears, testFiles] = getYearsAndFiles(tableDataTestRows);
+
+    // Filter results from spreadsheet if it already exists
+    tableDataLiveRows = checkSheetForExistingRecordsAndFilterArrayTwo(
+      tableDataLiveRows,
+      "Update - LIVE",
+      liveYears,
+      liveFiles
+    );
+    tableDataTestRows = checkSheetForExistingRecordsAndFilterArrayTwo(
+      tableDataTestRows,
+      "Update - TEST",
+      testYears,
+      testFiles
+    );
+
+    // Add results to respective YYYY sheet based on Event Date
+    addUpdatesToSpreadsheetTwo(
+      tableDataLiveRows,
+      "Update - LIVE",
+      liveYears,
+      liveFiles
+    );
+    addUpdatesToSpreadsheetTwo(
+      tableDataTestRows,
+      "Update - TEST",
+      testYears,
+      testFiles
+    );
+
+    return undefined;
+  }
+
+  return Object.freeze({
+    main
+  });
+})(GmailApp, PropertiesService, SpreadsheetApp);</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="$Drivers.html">$Drivers</a></li><li><a href="CodeMoveCounts.html">CodeMoveCounts</a></li><li><a href="CsctMessages.html">CsctMessages</a></li><li><a href="MonthlyRun.html">MonthlyRun</a></li><li><a href="SendEmail.html">SendEmail</a></li><li><a href="StaffUtilities.html">StaffUtilities</a></li><li><a href="SupTechStats.html">SupTechStats</a></li><li><a href="UpdatesSupported.html">UpdatesSupported</a></li><li><a href="YearlyStats.html">YearlyStats</a></li></ul><h3>Global</h3><ul><li><a href="global.html#FIRST_STAFF_ROW">FIRST_STAFF_ROW</a></li><li><a href="global.html#LAST_STAFF_ROW">LAST_STAFF_ROW</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Tue Mar 02 2021 15:02:26 GMT-0500 (Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+var ROUTES_INDEX = {"name":"<root>","kind":"module","className":"AppModule","children":[{"name":"emEventRoutes","filename":"src/app/dashboards/updates/em-events/em-events.routing.module.ts","module":"EmEventsRoutingModule","children":[],"kind":"module"}]}

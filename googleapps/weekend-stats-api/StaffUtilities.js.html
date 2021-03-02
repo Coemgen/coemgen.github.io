@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: StaffUtilities.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: StaffUtilities.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*jslint browser:true, devel:true, long:true, white:true*/
+/*global AdminDirectory, GroupsApp*/
+
+/**
+ * @file Defines the &lt;code>&lt;b>StaffUtilities&lt;/b>&lt;/code> module.  This module has
+ * functions for getting user (staff) information.
+ */
+
+/**
+ * @namespace StaffUtilities
+ */
+
+/**
+ * The object type of the elements of the array returned by the getObjArr
+ * function.
+ * @typedef UserData
+ * @type {object}
+ * @property {string} UserData.staffName - Family,Given MI
+ * @property {string} UserData.staffEmail - mnemonic@mail.com
+ */
+
+// eslint-disable-next-line no-unused-vars
+const StaffUtilities = (function (AdminDirectory, GroupsApp) {
+  "use strict";
+
+  /**
+   * @function capitalizeFirstLetter
+   * @memberof StaffUtilities
+   * @private
+   */
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
+  /**
+   * @typedef GoogleUserName
+   * @type {object}
+   * @property {string} GoogleUserName.givenName - Firstname
+   * @property {string} GoogleUserName.familyName - Lastname
+   */
+
+  /**
+   * @typedef GoogleUser
+   * @type {object}
+   * @property {GoogleUserName} GoogleUser.name - object defining a user's name
+   * @property {string} GoogleUser.email - user's email
+   */
+
+  /**
+   * Gets a Google user object for a given user ID.
+   * @function getUser
+   * @memberof StaffUtilities
+   * @private
+   * @param {string} userkey A userID string e.g., kevin.griffin@gmail.com
+   * @returns {GoogleUser} JSON representing the Google user
+   */
+  // eslint-disable-next-line no-unused-vars
+  function getUser(userKey) {
+    const optionalArgs = {
+      viewType: "domain_public",
+    };
+    const perPos = userKey.indexOf(".");
+    const givenName = userKey.slice(0, perPos);
+    const familyName = userKey.slice(perPos + 1, userKey.indexOf("@"));
+    var userObj = {
+      name: {
+        familyName: capitalizeFirstLetter(familyName),
+        givenName: capitalizeFirstLetter(givenName),
+      },
+      email: userKey,
+    };
+
+    try {
+      /*
+       * To activate AdminDirectory:
+       *   Resources (drop-down menu),
+       *     Advanced Google Services,
+       *     turn on Admin Directory API
+       *
+       * Authorize OAuth2 by viewing a user profile via this url
+       * https://developers.google.com/admin-sdk/directory/v1/reference/users/get
+       */
+      userObj = AdminDirectory.Users.get(userKey, optionalArgs);
+    } catch (e) {
+      console.log(e);
+    }
+
+    return userObj;
+  }
+
+  /**
+   * Takes a Google Groups email then returns an array of objects including
+   * group members' names and email addresses.
+   * @function getObjArr
+   * @memberof StaffUtilities
+   * @public
+   * @param {string} email - Google Group Email
+   * @param {string} managerEmail - manager does not do code moves
+   * @returns {UserData[]} - Array of UserData objects
+   */
+  // eslint-disable-next-line no-unused-vars
+  function getObjArr(groupEmail, managerEmail) {
+    const staffArr = GroupsApp.getGroupByEmail(groupEmail)
+      .getUsers()
+      .filter((user) => user.getEmail() !== managerEmail)
+      .map(function (user) {
+        return user.getEmail();
+      });
+
+    return Object.freeze(
+      staffArr.map(function (email) {
+        const staffMember = getUser(email);
+        const name = staffMember.name.familyName
+          + ","
+          + staffMember.name.givenName;
+        return Object.freeze({
+          name,
+          email,
+        });
+      })
+    );
+  }
+
+  /**
+   * Get a sorted array of staff names from an array of staff objects
+   * @function getNameArr
+   * @memberof StaffUtilities
+   * @public
+   * @param {UserData[]} staffObjArr - Array of UserData objects
+   * @returns {string[]} - A sorted array of name strings
+   */
+  // eslint-disable-next-line no-unused-vars
+  function getNameArr(staffObjArr) {
+    return Object.freeze(staffObjArr.map((staffObj) => staffObj.name).sort());
+  }
+
+  /**
+   * @typedef StaffNameList
+   * @type {Object.&lt;string, boolean>}
+   * @property {string} StaffNameList.name - Firstname Lastname
+   * @property {boolean} StaffNameList.active - true
+   */
+
+  /**
+   * Gets the names of all staff members in the given manager's group.
+   * @function getStaffNameObj
+   * @memberof StaffUtilities
+   * @public
+   * @param {string} mgrsStaffEmail - manager's Google Group for staff
+   * @returns {StaffNameList} - { "Firstname Lastname":true, ... }
+   */
+  function getStaffNameObj(mgrsStaffEmail) {
+    // const mgrsStaffEmail = PropertiesService.getScriptProperties()
+    //   .getProperty("mgrsStaffEmail");
+
+    // TODO: add conditionals to get staff (recurse on getGroups().length>0?)
+
+    const mgrsGroups = GroupsApp.getGroupByEmail(mgrsStaffEmail).getGroups();
+    const supsGroups = mgrsGroups.reduce(
+      (acc, group) => [...acc, ...group.getGroups()],
+      []
+    );
+    const groupUsers = supsGroups.reduce(
+      (acc, group) => [...acc, ...group.getUsers()],
+      []
+    );
+    const staffEmails = groupUsers.map((user) => user.getEmail());
+    const userObjs = staffEmails.map((email) => getUser(email));
+
+    return userObjs.reduce((acc, userObj) => {
+      acc[userObj.name.givenName + " " + userObj.name.familyName] = true;
+      return acc;
+    }, {});
+  }
+
+  return Object.freeze({
+    getObjArr,
+    getNameArr,
+    getStaffNameObj
+  });
+})(AdminDirectory, GroupsApp);</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="$Drivers.html">$Drivers</a></li><li><a href="CodeMoveCounts.html">CodeMoveCounts</a></li><li><a href="CsctMessages.html">CsctMessages</a></li><li><a href="MonthlyRun.html">MonthlyRun</a></li><li><a href="SendEmail.html">SendEmail</a></li><li><a href="StaffUtilities.html">StaffUtilities</a></li><li><a href="SupTechStats.html">SupTechStats</a></li><li><a href="UpdatesSupported.html">UpdatesSupported</a></li><li><a href="YearlyStats.html">YearlyStats</a></li></ul><h3>Global</h3><ul><li><a href="global.html#FIRST_STAFF_ROW">FIRST_STAFF_ROW</a></li><li><a href="global.html#LAST_STAFF_ROW">LAST_STAFF_ROW</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Tue Mar 02 2021 15:02:26 GMT-0500 (Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
